@@ -31,13 +31,14 @@ body {
 body {
   width: 100%;
   height: 100%;
-  margin: 0;
-  padding: 0;
+  box-sizing: border-box;
   overflow-x: hidden;
   font-family: 'Inter', sans-serif;;
   background-color: var(--color-primary);
   color: var(--color-secondary);
 }
+
+
 
 .font-inter {
   font-family: 'Inter', sans-serif;
