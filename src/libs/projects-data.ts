@@ -53,8 +53,7 @@ export const PROJECTS: Project[] = [
       "Application générant des coupons de pronostics personnalisés selon le budget et les cotes souhaitées.",
     fullDescription:
       "Une application intelligente qui prend en entrée le budget de l'utilisateur et la cote désirée pour générer automatiquement des pronostics optimisés.",
-    image:
-      "/assets/images/football.png",
+    image: "/assets/images/football.png",
     tech: ["Next.js", "Tailwind CSS", "TypeScript", "IA"],
     features: [
       "Saisie dynamique du budget et des cotes",
@@ -63,56 +62,60 @@ export const PROJECTS: Project[] = [
       "Conseils de jeu responsable intégrés",
     ],
     challenges:
-      "Optimiser les combinaisons générées par l'IA pour qu'elles respectent le budget et la cote tout en restant réalistes, et maintenir la performance avec des requêtes fréquentes à l'API.",   
-    screenshots: ["/assets/images/football2.png", "/assets/images/football3.png"],
-      liveUrl: "https://football-generateur.vercel.app/",
+      "Optimiser les combinaisons générées par l'IA pour qu'elles respectent le budget et la cote tout en restant réalistes, et maintenir la performance avec des requêtes fréquentes à l'API.",
+    screenshots: [
+      "/assets/images/football2.png",
+      "/assets/images/football3.png",
+    ],
+    liveUrl: "https://football-generateur.vercel.app/",
     githubUrl: "https://github.com/odounlami/FootballGenerateur",
   },
-  {
+
+ {
     id: 3,
-    title: "Mobile Banking App",
-    role: "Développeur Mobile",
+    title: "ArchRoot",
+    role: "Développeur Front-End",
     description:
-      "Application bancaire mobile sécurisée avec authentification biométrique.",
+      "Site vitrine pour un studio d'architecture et d'aménagement d'intérieur (interface en anglais).",
     fullDescription:
-      "Application bancaire mobile cross-platform offrant une expérience sécurisée et intuitive. Intègre l'authentification biométrique (Face ID/Touch ID) et le chiffrement de bout en bout.",
+      "Une interface moderne mettant en valeur les projets du studio, avec galerie dynamique, informations détaillées sur les réalisations et responsive design adapté à tous les écrans.",
     image:
-      "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80",
-    tech: ["React Native", "Firebase", "TypeScript", ""],
+      "/assets/images/studio.png",
+    tech: ["Next.js", "Tailwind CSS", "TypeScript", "Responsive Design"],
     features: [
-      "Authentification biométrique",
-      "Transferts instantanés",
-      "Historique des transactions",
-      "Notifications push intelligentes",
-      "Gestion multi-comptes",
+      "Galerie interactive des projets d'aménagement",
+      "Navigation fluide et responsive",
+      "Sections détaillées pour chaque projet",
+      "Animations légères pour l'expérience utilisateur",
     ],
     challenges:
-      "Assurer la sécurité maximale tout en maintenant une expérience utilisateur simple et rapide.",
-    liveUrl: "#",
-    githubUrl: "#",
+      "Organiser une présentation visuelle des projets de manière élégante tout en maintenant un temps de chargement optimal et une compatibilité mobile complète.",   
+    screenshots: ["/assets/images/studio.png", "/assets/images/studio2.png"],
+    liveUrl: "https://archroot.netlify.app/",
+    githubUrl: "https://github.com/odounlami/architecture-studio",
   },
+
+
   {
     id: 4,
-    title: "AI Content Generator",
-    role: "Développeur Full Stack",
+    title: "La Maison",
+    role: "Développeur Front-End",
     description:
-      "Générateur de contenu IA pour les réseaux sociaux avec prévisualisation.",
+      "Site vitrine pour un restaurant avec menu interactif et informations pratiques.",
     fullDescription:
-      "Outil de génération de contenu alimenté par l'IA (OpenAI GPT-4) permettant de créer des publications optimisées pour différentes plateformes sociales avec prévisualisation en temps réel.",
-    image:
-      "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80",
-    tech: ["Next.js", "OpenAI", "Tailwind", "Prisma", "NextAuth"],
+      "Un site responsive présentant le restaurant, son menu, ses horaires et son emplacement, avec une interface attractive et facile à naviguer pour les clients potentiels.",
+    image: "/assets/images/restaurant.png",
+    tech: ["Next.js", "Tailwind CSS", "TypeScript", "Responsive Design"],
     features: [
-      "Génération de contenu multi-plateforme",
-      "Prévisualisation en temps réel",
-      "Optimisation SEO automatique",
-      "Planification de posts",
-      "Analyse de performance",
+      "Affichage dynamique du menu avec sections et images",
+      "Carte interactive et informations de contact",
+      "Animations d'apparition et transitions fluides",
+      "Design orienté conversion et expérience client",
     ],
     challenges:
-      "Gérer les coûts d'API OpenAI tout en offrant une génération rapide et de qualité.",
-    liveUrl: "#",
-    githubUrl: "#",
+      "Créer une interface claire et appétissante qui reflète l'identité du restaurant tout en restant légère et rapide à charger sur mobile et desktop.",
+    liveUrl: "https://mmaison.netlify.app/",
+    githubUrl: "https://github.com/odounlami/restaurant-app",
   },
   {
     id: 5,
