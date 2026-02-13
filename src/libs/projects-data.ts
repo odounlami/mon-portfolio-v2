@@ -117,52 +117,52 @@ export const PROJECTS: Project[] = [
     liveUrl: "https://mmaison.netlify.app/",
     githubUrl: "https://github.com/odounlami/restaurant-app",
   },
-  {
-    id: 5,
-    title: "Fitness Tracker",
-    role: "Développeur Mobile",
-    description:
-      "Application de suivi fitness avec synchronisation wearables et coaching personnalisé.",
-    fullDescription:
-      "Application complète de suivi fitness qui se synchronise avec les appareils portables populaires et offre un coaching personnalisé basé sur l'IA.",
-    image:
-      "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=800&q=80",
-    tech: ["Flutter", "Python", "TensorFlow", "FastAPI", "PostgreSQL"],
-    features: [
-      "Synchronisation avec Apple Watch et Fitbit",
-      "Plans d'entraînement personnalisés par IA",
-      "Suivi nutritionnel",
-      "Analyse de la récupération",
-      "Communauté et défis",
-    ],
-    challenges:
-      "Développer des algorithmes de ML précis pour la recommandation d'exercices basés sur les données physiologiques.",
-    liveUrl: "#",
-    githubUrl: "#",
-  },
-  {
-    id: 6,
-    title: "Real Estate CRM",
-    role: "Développeur Full Stack",
-    description:
-      "CRM immobilier avec géolocalisation et visites virtuelles 360°.",
-    fullDescription:
-      "Système CRM complet pour agences immobilières incluant la géolocalisation, des visites virtuelles 360° et un système de gestion des leads intelligent.",
-    image:
-      "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80",
-    tech: ["Angular", "Laravel", "MySQL", "Mapbox", "Three.js"],
-    features: [
-      "Visites virtuelles 360°",
-      "Carte interactive avec géolocalisation",
-      "Gestion automatisée des leads",
-      "Système de rendez-vous intégré",
-      "Rapports et analytics",
-    ],
-    challenges:
-      "Optimiser le chargement des visites 360° haute résolution pour une expérience fluide même sur mobile.",
-    liveUrl: "#",
-    githubUrl: "#",
-  },
+  // {
+  //   id: 5,
+  //   title: "Fitness Tracker",
+  //   role: "Développeur Mobile",
+  //   description:
+  //     "Application de suivi fitness avec synchronisation wearables et coaching personnalisé.",
+  //   fullDescription:
+  //     "Application complète de suivi fitness qui se synchronise avec les appareils portables populaires et offre un coaching personnalisé basé sur l'IA.",
+  //   image:
+  //     "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=800&q=80",
+  //   tech: ["Flutter", "Python", "TensorFlow", "FastAPI", "PostgreSQL"],
+  //   features: [
+  //     "Synchronisation avec Apple Watch et Fitbit",
+  //     "Plans d'entraînement personnalisés par IA",
+  //     "Suivi nutritionnel",
+  //     "Analyse de la récupération",
+  //     "Communauté et défis",
+  //   ],
+  //   challenges:
+  //     "Développer des algorithmes de ML précis pour la recommandation d'exercices basés sur les données physiologiques.",
+  //   liveUrl: "#",
+  //   githubUrl: "#",
+  // },
+  // {
+  //   id: 6,
+  //   title: "Real Estate CRM",
+  //   role: "Développeur Full Stack",
+  //   description:
+  //     "CRM immobilier avec géolocalisation et visites virtuelles 360°.",
+  //   fullDescription:
+  //     "Système CRM complet pour agences immobilières incluant la géolocalisation, des visites virtuelles 360° et un système de gestion des leads intelligent.",
+  //   image:
+  //     "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80",
+  //   tech: ["Angular", "Laravel", "MySQL", "Mapbox", "Three.js"],
+  //   features: [
+  //     "Visites virtuelles 360°",
+  //     "Carte interactive avec géolocalisation",
+  //     "Gestion automatisée des leads",
+  //     "Système de rendez-vous intégré",
+  //     "Rapports et analytics",
+  //   ],
+  //   challenges:
+  //     "Optimiser le chargement des visites 360° haute résolution pour une expérience fluide même sur mobile.",
+  //   liveUrl: "#",
+  //   githubUrl: "#",
+  // },
 ];
 
 // Fonction helper pour récupérer un projet par ID
