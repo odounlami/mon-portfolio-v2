@@ -199,7 +199,7 @@ export default function ProjectDetailPage() {
             N&apos;hésitez pas à me contacter pour en discuter davantage.
           </p>
           <button
-            onClick={() => router.push("/contact")}
+            onClick={() => router.push("/#contact")}
             className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition"
           >
             Me contacter
