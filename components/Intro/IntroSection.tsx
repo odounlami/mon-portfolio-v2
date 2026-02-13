@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import gsap from "gsap";
 import SplitText from "gsap/SplitText";
+import Link from "next/link";
 
 gsap.registerPlugin(SplitText);
 
@@ -336,14 +337,15 @@ export default function IntroSection() {
           <strong className="text-[var(--color-accent)]">Angular</strong>, je
           conçois des interfaces modernes, claires et orientées produit.
         </p>
-        <a
+        <Link
           ref={ctaRef}
-          href="/contact"
+          href="/#contact"
           className="inline-block bg-[var(--color-accent)] hover:bg-[#22ccee] transition-all duration-300 text-black font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-[0_0_20px_#38bdf8] text-base sm:text-lg transform hover:scale-105 will-change-transform focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)] focus:ring-opacity-50"
           aria-label="Me contacter - Accéder au formulaire de contact"
         >
           Me contacter
-        </a>
+        </Link>
+        
         <div
           className="mt-6 sm:mt-10 h-1 w-16 sm:w-20 lg:w-24 mx-auto bg-[var(--color-accent)] rounded-full animate-pulse"
           aria-hidden="true"
