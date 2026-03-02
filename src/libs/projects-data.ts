@@ -117,29 +117,28 @@ export const PROJECTS: Project[] = [
     liveUrl: "https://mmaison.netlify.app/",
     githubUrl: "https://github.com/odounlami/restaurant-app",
   },
-  // {
-  //   id: 5,
-  //   title: "Fitness Tracker",
-  //   role: "Développeur Mobile",
-  //   description:
-  //     "Application de suivi fitness avec synchronisation wearables et coaching personnalisé.",
-  //   fullDescription:
-  //     "Application complète de suivi fitness qui se synchronise avec les appareils portables populaires et offre un coaching personnalisé basé sur l'IA.",
-  //   image:
-  //     "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=800&q=80",
-  //   tech: ["Flutter", "Python", "TensorFlow", "FastAPI", "PostgreSQL"],
-  //   features: [
-  //     "Synchronisation avec Apple Watch et Fitbit",
-  //     "Plans d'entraînement personnalisés par IA",
-  //     "Suivi nutritionnel",
-  //     "Analyse de la récupération",
-  //     "Communauté et défis",
-  //   ],
-  //   challenges:
-  //     "Développer des algorithmes de ML précis pour la recommandation d'exercices basés sur les données physiologiques.",
-  //   liveUrl: "#",
-  //   githubUrl: "#",
-  // },
+{
+  id: 5,
+  title: "Mindsync",
+  role: "Développeur Full Stack",
+  description:
+    "Jeu multijoueur temps réel basé sur la synchronisation mentale entre joueurs.",
+  fullDescription:
+    "Mindsync est un jeu multijoueur en temps réel où les joueurs doivent écrire le même mot à partir d’un mot de référence donné par le serveur. Chaque round est chronométré et les points sont attribués uniquement en cas de synchronisation parfaite entre au moins deux joueurs. Le projet met l’accent sur la gestion d’état en temps réel, la synchronisation des timers côté client et serveur, ainsi que la gestion robuste des connexions et déconnexions.",
+  image:
+    "/assets/images/mindsync.png",
+  tech: ["Next.js", "TypeScript", "Node.js", "WebSocket (ws)", "Render"],
+  features: [
+    "Parties multijoueur en temps réel (2 à 4 joueurs)",
+    "Timer synchronisé côté serveur et client",
+    "Mot de référence unique à chaque round",
+    "Système de score basé sur la synchronisation",
+    "Gestion des départs en cours de partie",
+  ],
+  challenges:
+    "Gérer la synchronisation des états et des timers en temps réel via WebSocket tout en assurant la stabilité lors des connexions et déconnexions des joueurs.",
+  liveUrl: "https://mindsync-mu.vercel.app/",
+}
   // {
   //   id: 6,
   //   title: "Real Estate CRM",
