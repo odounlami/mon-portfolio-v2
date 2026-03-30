@@ -2,12 +2,9 @@
 @import "tailwindcss";
 
 
-body {
- 
-}
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
   --color-primary: #1e293b;
   --color-secondary: #f1f5f9;
   --color-accent: #38bdf8;
@@ -21,25 +18,26 @@ body {
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
-  font-family: 'Inter', sans-serif;;
-  background-color: var(--color-primary);
+  font-family: var(--font-main);
+  background-color: var(--background);
   color: var(--color-secondary);
 }
 
+/* Priorité sur les utilitaires Tailwind pour le corps de texte par défaut */
+body.font-inter {
+  font-family: var(--font-main);
+  color: var(--color-secondary);
+}
 
+main {
+  font-family: var(--font-main);
+}
 
 .font-inter {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-main);
 }

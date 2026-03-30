@@ -1,263 +1,268 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
-export default function AboutSection() {
+const parcours = [
+  {
+    type: "formation",
+    titre: "Licence en Architecture Logicielle",
+    lieu: "ESGIS · Cotonou",
+    periode: "sept. 2021 – juin 2024",
+    points: [
+      "Conception et modélisation de systèmes logiciels complexes",
+      "Algorithmique avancée et structures de données",
+      "Gestion de projets Agile, UML, Merise",
+    ],
+    actuel: false,
+  },
+  {
+    type: "experience",
+    titre: "Stagiaire Dev Web & Mobile",
+    lieu: "SEED-SARL · Houéyihô",
+    periode: "mars 2024 – juin 2024",
+    points: [
+      "Interfaces utilisateur avec React.js",
+      "API REST back-end avec Laravel",
+      "Intégration FedaPay & cartes interactives",
+    ],
+    actuel: false,
+  },
+  {
+    type: "experience",
+    titre: "Développeur Front-end",
+    lieu: "OBIDON · Cotonou",
+    periode: "avr. 2025 – présent",
+    points: [
+      "Interfaces responsives depuis maquettes Figma",
+      "Composants génériques réutilisables",
+      "Modélisation UML fonctionnelle et technique",
+    ],
+    actuel: true,
+  },
+];
+
+export default function Parcours() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const titleRef = useRef<HTMLHeadingElement | null>(null);
-  const contentRef = useRef<HTMLDivElement | null>(null);
-  const valuesRef = useRef<HTMLDivElement | null>(null);
+  const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  // Détecter la préférence de mouvement réduit
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
 
-  // Animation d'entrée au scroll
   useEffect(() => {
-    if (!titleRef.current || !contentRef.current || !valuesRef.current) return;
+    const items = itemsRef.current.filter(Boolean);
+    if (!titleRef.current || items.length === 0) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             if (prefersReducedMotion) {
-              gsap.set(
-                [titleRef.current, contentRef.current, valuesRef.current],
-                { opacity: 1, y: 0 }
-              );
+              gsap.set([titleRef.current, ...items], { opacity: 1, y: 0 });
             } else {
               const tl = gsap.timeline();
               tl.fromTo(
                 titleRef.current!,
                 { opacity: 0, y: 30 },
                 { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }
-              )
-                .fromTo(
-                  contentRef.current ? Array.from(contentRef.current.children) : [],
-                  { opacity: 0, y: 20 },
-                  {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.6,
-                    stagger: 0.15,
-                    ease: "power2.out",
-                  },
-                  "-=0.4"
-                )
-                .fromTo(
-                  valuesRef.current ? Array.from(valuesRef.current.children) : [],
-                  { opacity: 0, x: -20 },
-                  {
-                    opacity: 1,
-                    x: 0,
-                    duration: 0.6,
-                    stagger: 0.1,
-                    ease: "power2.out",
-                  },
-                  "-=0.2"
-                );
+              ).fromTo(
+                items,
+                { opacity: 0, y: 40 },
+                { opacity: 1, y: 0, duration: 0.7, stagger: 0.18, ease: "power2.out" },
+                "-=0.4"
+              );
             }
             observer.disconnect();
           }
         });
       },
-      { threshold: 0.2 }
+      { threshold: 0.15 }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, [prefersReducedMotion]);
-
-  const values = [
-    {
-      icon: "⚡",
-      title: "Performance",
-      description: "Code optimisé, temps de chargement minimal",
-    },
-    {
-      icon: "♿",
-      title: "Accessibilité",
-      description: "Interfaces inclusives et conformes WCAG",
-    },
-    {
-      icon: "🎨",
-      title: "Design System",
-      description: "Cohérence visuelle et composants réutilisables",
-    },
-    {
-      icon: "🔧",
-      title: "Maintenabilité",
-      description: "Code propre, documenté et évolutif",
-    },
-  ];
 
   return (
     <section
       ref={sectionRef}
-      className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white py-20 px-4 relative overflow-hidden"
-      aria-labelledby="about-title"
+      id="parcours"
+      className="w-full min-h-screen flex items-center justify-center py-20 px-4 relative overflow-hidden"
+      style={{ background: "linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)" }}
+      aria-labelledby="parcours-heading"
     >
-      {/* Background décoratif */}
+      {/* Blobs décoratifs */}
       <div className="absolute inset-0 opacity-5 pointer-events-none" aria-hidden="true">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full blur-[120px]" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full blur-[120px]" />
+        <div className="absolute top-20 right-10 w-80 h-80 bg-blue-500 rounded-full blur-[120px]" />
+        <div className="absolute bottom-20 left-10 w-96 h-96 bg-sky-400 rounded-full blur-[120px]" />
       </div>
 
-      {/* Pattern de grille subtil */}
+      {/* Grille subtile */}
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" aria-hidden="true">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <pattern id="about-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            <pattern id="parcours-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5" />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#about-grid)" />
+          <rect width="100%" height="100%" fill="url(#parcours-grid)" />
         </svg>
       </div>
 
-      <div className="max-w-6xl w-full space-y-16 relative z-10">
+      <div className="max-w-4xl w-full relative z-10 space-y-16">
         {/* Header */}
         <div className="text-center space-y-4">
           <h2
-            id="about-title"
+            id="parcours-heading"
             ref={titleRef}
-            className="text-4xl md:text-5xl lg:text-6xl font-extrabold"
+            className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white"
           >
-            À propos de{" "}
-            <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              moi
+            Mon{" "}
+            <span
+              className="bg-clip-text text-transparent"
+              style={{ backgroundImage: "linear-gradient(to right, #38bdf8, #818cf8)" }}
+            >
+              Parcours
             </span>
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full" />
-        </div>
-
-        {/* Contenu principal */}
-        <div
-          ref={contentRef}
-          className="space-y-6 text-slate-300 text-base md:text-lg leading-relaxed max-w-5xl mx-auto"
-        >
-          <p className="text-xl md:text-2xl text-slate-200 font-medium">
-            Développeur <strong className="text-blue-400">front-end</strong>{" "}
-            passionné par la création d'expériences web{" "}
-            <strong className="text-purple-400">modernes</strong>,{" "}
-            <strong className="text-purple-400">performantes</strong> et{" "}
-            <strong className="text-purple-400">accessibles</strong>.
-          </p>
-
-          <p>
-            Mon approche se concentre sur la{" "}
-            <strong className="text-blue-400">qualité du code</strong> et
-            l'expérience utilisateur. Je conçois des interfaces intuitives avec
-            des composants réutilisables, en privilégiant la simplicité et
-            l'efficacité plutôt que la complexité inutile.
-          </p>
-
-          <p>
-            Spécialisé en{" "}
-            <strong className="text-purple-400">Angular</strong> et{" "}
-            <strong className="text-purple-400">Next.js</strong>, je maîtrise
-            l'écosystème JavaScript moderne (TypeScript, React, TailwindCSS,
-            GSAP) et possède une solide compréhension du back-end, me permettant
-            de collaborer efficacement sur des projets full-stack.
-          </p>
-
-          <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-l-4 border-blue-500 rounded-r-lg p-6 my-8">
-            <p className="text-slate-200 italic">
-              "Je m'investis dans des projets où la{" "}
-              <strong className="text-blue-400">qualité du produit</strong>, la{" "}
-              <strong className="text-purple-400">vision long terme</strong> et
-              l'<strong className="text-blue-400">impact réel</strong> comptent
-              vraiment."
-            </p>
-          </div>
-        </div>
-
-        {/* Valeurs / Principes */}
-        <div className="space-y-8">
-          <h3 className="text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Mes principes de développement
-          </h3>
-
           <div
-            ref={valuesRef}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto"
-          >
-            {values.map((value, index) => (
-              <div
-                key={index}
-                className="group bg-gradient-to-br from-slate-800/30 to-slate-900/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1"
-              >
-                <div className="flex items-start gap-4">
-                  <div
-                    className="text-4xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300"
-                    aria-hidden="true"
-                  >
-                    {value.icon}
-                  </div>
-                  <div>
-                    <h4 className="text-lg md:text-xl font-semibold text-blue-400 mb-2 group-hover:text-purple-400 transition-colors duration-300">
-                      {value.title}
-                    </h4>
-                    <p className="text-slate-400 text-sm md:text-base">
-                      {value.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+            className="w-20 h-1 mx-auto rounded-full"
+            style={{ backgroundImage: "linear-gradient(to right, #38bdf8, #818cf8)" }}
+          />
         </div>
 
-        {/* CTA */}
-        <div className="text-center pt-8">
-          <a
-            href="#contact"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-500/50"
-          >
-            Discutons de votre projet
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 7l5 5m0 0l-5 5m5-5H6"
-              />
-            </svg>
-          </a>
+        {/* Timeline */}
+        <div className="relative">
+          {/* Ligne verticale centrale */}
+          <div
+            className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 hidden md:block"
+            style={{
+              background:
+                "linear-gradient(to bottom, transparent, #38bdf8 20%, #818cf8 80%, transparent)",
+            }}
+            aria-hidden="true"
+          />
+
+          <div className="space-y-12">
+            {parcours.map((item, i) => {
+              const isLeft = i % 2 === 0;
+              return (
+                <div
+                  key={i}
+                  ref={(el) => { itemsRef.current[i] = el; }}
+                  className="relative flex flex-col md:flex-row items-center gap-6 md:gap-0"
+                >
+                  {/* Côté gauche */}
+                  <div className={`w-full md:w-1/2 ${isLeft ? "md:pr-12" : "md:order-3 md:pl-12"}`}>
+                    <div
+                      className="rounded-xl p-6 border transition-all duration-300 hover:-translate-y-1"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgba(30,41,59,0.6), rgba(15,23,42,0.6))",
+                        backdropFilter: "blur(8px)",
+                        borderColor: item.actuel
+                          ? "rgba(56,189,248,0.5)"
+                          : "rgba(100,116,139,0.25)",
+                      }}
+                      onMouseEnter={(e) => {
+                        const el = e.currentTarget as HTMLDivElement;
+                        el.style.borderColor = "rgba(56,189,248,0.6)";
+                        el.style.boxShadow = "0 8px 30px rgba(56,189,248,0.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        const el = e.currentTarget as HTMLDivElement;
+                        el.style.borderColor = item.actuel
+                          ? "rgba(56,189,248,0.5)"
+                          : "rgba(100,116,139,0.25)";
+                        el.style.boxShadow = "none";
+                      }}
+                    >
+                      {/* Badges */}
+                      <div className="flex items-center gap-2 mb-3 flex-wrap">
+                        <span
+                          className="text-xs font-semibold uppercase tracking-widest px-2 py-0.5 rounded"
+                          style={{
+                            color: item.type === "formation" ? "#818cf8" : "#38bdf8",
+                            backgroundColor:
+                              item.type === "formation"
+                                ? "rgba(129,140,248,0.1)"
+                                : "rgba(56,189,248,0.1)",
+                          }}
+                        >
+                          {item.type === "formation" ? "Formation" : "Expérience"}
+                        </span>
+                        {item.actuel && (
+                          <span
+                            className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                            style={{ backgroundColor: "#38bdf8", color: "#0F172A" }}
+                          >
+                            Actuel
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Titre */}
+                      <h3 className="text-lg md:text-xl font-bold text-white mb-1">
+                        {item.titre}
+                      </h3>
+
+                      {/* Lieu · Période */}
+                      <p className="text-sm mb-4" style={{ color: "#38bdf8", opacity: 0.75 }}>
+                        {item.lieu} · {item.periode}
+                      </p>
+
+                      {/* Points */}
+                      <ul className="space-y-1.5">
+                        {item.points.map((point, j) => (
+                          <li
+                            key={j}
+                            className="flex items-start gap-2 text-sm"
+                            style={{ color: "#94a3b8" }}
+                          >
+                            <span
+                              className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                              style={{
+                                backgroundColor:
+                                  item.type === "formation" ? "#818cf8" : "#38bdf8",
+                              }}
+                              aria-hidden="true"
+                            />
+                            {point}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Point central */}
+                  <div
+                    className="hidden md:flex md:order-2 absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 z-10"
+                    style={{
+                      backgroundColor: item.actuel ? "#38bdf8" : "#1E293B",
+                      borderColor: item.actuel ? "#38bdf8" : "#475569",
+                      boxShadow: item.actuel
+                        ? "0 0 14px rgba(56,189,248,0.7)"
+                        : "none",
+                      top: "1.75rem",
+                    }}
+                    aria-hidden="true"
+                  />
+
+                  {/* Spacer côté opposé */}
+                  <div className={`hidden md:block w-1/2 ${isLeft ? "md:order-3" : "md:order-1"}`} />
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
-
-      {/* Styles pour animations */}
-      <style jsx>{`
-        @media (prefers-reduced-motion: reduce) {
-          * {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-      `}</style>
     </section>
   );
 }

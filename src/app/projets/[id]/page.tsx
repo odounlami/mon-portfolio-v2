@@ -71,27 +71,29 @@ export default function ProjectDetailPage() {
 
   return (
     <main className="relative min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-16 md:py-24">
+      {/* Décalage sous le header fixe (z-50) pour que le retour reste visible */}
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-20 sm:pt-24 pb-8 sm:pb-16 md:pb-24">
 
         {/* Back */}
         <button
           type="button"
           onClick={() => router.back()}
-          className="inline-flex items-center gap-2 min-h-[48px] min-w-0 -ml-2 px-3 py-2 mb-6 sm:mb-8 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          className="relative z-20 inline-flex items-center gap-2 min-h-[44px] px-3 py-2 mb-5 sm:mb-8 rounded-lg text-slate-200 hover:text-white bg-slate-800/40 hover:bg-slate-800/80 border border-slate-600/50 transition-colors w-fit"
         >
           <ArrowLeft className="w-5 h-5 shrink-0" aria-hidden />
           <span>Retour aux projets</span>
         </button>
 
-        {/* HERO */}
+        {/* HERO — hauteur fluide + image responsive */}
         <div
           ref={heroRef}
-          className="relative h-[min(52vh,380px)] sm:h-[320px] md:h-[420px] lg:h-[520px] rounded-xl sm:rounded-2xl overflow-hidden shadow-lg group"
+          className="relative w-full h-[clamp(200px,40vh,380px)] sm:h-[320px] md:h-[420px] lg:h-[520px] rounded-xl sm:rounded-2xl overflow-hidden shadow-lg group"
         >
           <Image
             src={project.image}
             alt={project.title}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1152px"
             className="object-cover"
             priority
           />
@@ -187,16 +189,17 @@ export default function ProjectDetailPage() {
 
           {project.screenshots && project.screenshots.length > 0 && (
             <ProjectSection title="Captures d'écran">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
                 {project.screenshots.map((src, idx) => (
                   <div
                     key={idx}
-                    className="relative h-64 rounded-xl overflow-hidden border border-slate-700/50"
+                    className="relative w-full aspect-[4/3] sm:aspect-video rounded-xl overflow-hidden border border-slate-700/50 bg-slate-900"
                   >
                     <Image
                       src={src}
                       alt={`Screenshot ${idx + 1}`}
                       fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover"
                     />
                   </div>

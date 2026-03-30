@@ -27,7 +27,7 @@ export default function IntroSection() {
   const [patternSize, setPatternSize] = useState(60);
   const [stars, setStars] = useState<Star[]>([]);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  
+
   const inactivityTimer = useRef<NodeJS.Timeout | null>(null);
   const heroTextRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLParagraphElement>(null);
@@ -37,46 +37,49 @@ export default function IntroSection() {
   const lastActivityTime = useRef<number>(0);
   const resizeTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  // Détecter la préférence de mouvement réduit
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReducedMotion(mediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-
+    const handleChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  // Ajuster la taille du pattern selon largeur écran
+  const scrollToHomeSection = useCallback(
+    (sectionId: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+          block: "start",
+        });
+      }
+      window.history.replaceState(null, "", "/");
+    },
+    [prefersReducedMotion]
+  );
+
   const updatePatternSize = useCallback(() => {
     const width = window.innerWidth;
     setPatternSize(
-      width < 640 ? 20 : 
-      width < 768 ? 30 : 
-      width < 1024 ? 45 : 
+      width < 640 ? 20 :
+      width < 768 ? 30 :
+      width < 1024 ? 45 :
       60
     );
   }, []);
 
   useEffect(() => {
     updatePatternSize();
-    
     const debouncedResize = () => {
-      if (resizeTimeoutRef.current) {
-        clearTimeout(resizeTimeoutRef.current);
-      }
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
       resizeTimeoutRef.current = setTimeout(updatePatternSize, 150);
     };
-
     window.addEventListener("resize", debouncedResize, { passive: true });
     return () => {
       window.removeEventListener("resize", debouncedResize);
-      if (resizeTimeoutRef.current) {
-        clearTimeout(resizeTimeoutRef.current);
-      }
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
     };
   }, [updatePatternSize]);
 
@@ -86,11 +89,10 @@ export default function IntroSection() {
     setStars([]);
     const width = window.innerWidth;
     const isMobile = width < 768;
-    const numStars = isMobile 
-      ? Math.floor(Math.random() * 3) + 2 
+    const numStars = isMobile
+      ? Math.floor(Math.random() * 3) + 2
       : Math.floor(Math.random() * 8) + 5;
     const margin = isMobile ? 16 : 40;
-    /** Marge autour du bloc texte + marge pour l’animation bounce (~4px) et grosses étoiles */
     const textPad = isMobile ? 80 : 100;
     const bouncePad = 8;
 
@@ -118,53 +120,35 @@ export default function IntroSection() {
       y + size > textZone.top &&
       y < textZone.bottom;
 
-    /** Position garantie hors du bloc titre (bandes autour de la zone) */
-    const randomOutsideText = (
-      size: number
-    ): { x: number; y: number } | null => {
+    const randomOutsideText = (size: number): { x: number; y: number } | null => {
       if (!textZone) return null;
-
       const candidates: Array<() => { x: number; y: number }> = [];
-
-      if (textZone.top > margin + size) {
+      if (textZone.top > margin + size)
         candidates.push(() => ({
           x: margin + Math.random() * Math.max(0, cw - margin * 2 - size),
           y: margin + Math.random() * Math.max(0, textZone.top - margin - size),
         }));
-      }
-      if (ch - textZone.bottom > margin + size) {
+      if (ch - textZone.bottom > margin + size)
         candidates.push(() => ({
           x: margin + Math.random() * Math.max(0, cw - margin * 2 - size),
-          y:
-            textZone.bottom +
-            Math.random() * Math.max(0, ch - textZone.bottom - margin - size),
+          y: textZone.bottom + Math.random() * Math.max(0, ch - textZone.bottom - margin - size),
         }));
-      }
-      if (textZone.left > margin + size) {
+      if (textZone.left > margin + size)
         candidates.push(() => ({
           x: margin + Math.random() * Math.max(0, textZone.left - margin - size),
           y: margin + Math.random() * Math.max(0, ch - margin * 2 - size),
         }));
-      }
-      if (cw - textZone.right > margin + size) {
+      if (cw - textZone.right > margin + size)
         candidates.push(() => ({
-          x:
-            textZone.right +
-            Math.random() * Math.max(0, cw - textZone.right - margin - size),
+          x: textZone.right + Math.random() * Math.max(0, cw - textZone.right - margin - size),
           y: margin + Math.random() * Math.max(0, ch - margin * 2 - size),
         }));
-      }
-
       if (candidates.length === 0) return null;
       return candidates[Math.floor(Math.random() * candidates.length)]();
     };
 
     const newStars: Star[] = Array.from({ length: numStars }, (_, i) => {
-      let x = 0,
-        y = 0,
-        size = 0,
-        attempts = 0;
-
+      let x = 0, y = 0, size = 0, attempts = 0;
       do {
         size = isMobile ? 10 + Math.random() * 8 : 15 + Math.random() * 15;
         x = Math.random() * (cw - margin * 2) + margin;
@@ -174,20 +158,10 @@ export default function IntroSection() {
 
       if (attempts >= 40 && textZone) {
         const fallback = randomOutsideText(size);
-        if (fallback) {
-          x = fallback.x;
-          y = fallback.y;
-        }
+        if (fallback) { x = fallback.x; y = fallback.y; }
       }
 
-      return {
-        x,
-        y,
-        rotation: Math.random() * 360,
-        id: Date.now() + i,
-        visible: true,
-        size,
-      };
+      return { x, y, rotation: Math.random() * 360, id: Date.now() + i, visible: true, size };
     });
 
     setStars(newStars);
@@ -195,17 +169,11 @@ export default function IntroSection() {
 
   const handleActivity = useCallback(() => {
     if (prefersReducedMotion) return;
-
     const now = Date.now();
     if (now - lastActivityTime.current < 100) return;
-    
     lastActivityTime.current = now;
     setStars([]);
-    
-    if (inactivityTimer.current) {
-      clearTimeout(inactivityTimer.current);
-    }
-    
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     inactivityTimer.current = setTimeout(launchStars, 3000);
   }, [launchStars, prefersReducedMotion]);
 
@@ -213,7 +181,6 @@ export default function IntroSection() {
     window.addEventListener("mousemove", handleActivity, { passive: true });
     window.addEventListener("touchstart", handleActivity, { passive: true });
     window.addEventListener("scroll", handleActivity, { passive: true });
-    
     return () => {
       window.removeEventListener("mousemove", handleActivity);
       window.removeEventListener("touchstart", handleActivity);
@@ -221,13 +188,10 @@ export default function IntroSection() {
     };
   }, [handleActivity]);
 
-  // Animations d'entrée
   useEffect(() => {
     if (!nameRef.current || !textRef.current || !heroCtasRef.current) return;
     if (prefersReducedMotion) {
-      gsap.set([nameRef.current, textRef.current, heroCtasRef.current], {
-        opacity: 1,
-      });
+      gsap.set([nameRef.current, textRef.current, heroCtasRef.current], { opacity: 1 });
       return;
     }
 
@@ -280,14 +244,7 @@ export default function IntroSection() {
 
     const explosionStars: Star[] = Array.from({ length: 8 }, (_, i) => {
       const size = 12 + Math.random() * 8;
-      return {
-        x: cx - size / 2,
-        y: cy - size / 2,
-        rotation: Math.random() * 360,
-        id: Date.now() + i,
-        visible: true,
-        size,
-      };
+      return { x: cx - size / 2, y: cy - size / 2, rotation: Math.random() * 360, id: Date.now() + i, visible: true, size };
     });
 
     setStars(explosionStars);
@@ -311,7 +268,6 @@ export default function IntroSection() {
   useEffect(() => {
     const nameElement = nameRef.current;
     if (!nameElement) return;
-
     nameElement.addEventListener("click", handleNameClick);
     return () => nameElement.removeEventListener("click", handleNameClick);
   }, [handleNameClick]);
@@ -357,7 +313,7 @@ export default function IntroSection() {
       className="w-full h-screen flex flex-col justify-center items-center bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#334155] text-[var(--color-secondary)] relative overflow-hidden"
       aria-labelledby="hero-title"
     >
-      {/* Background graphique - décoratif uniquement */}
+      {/* Background graphique */}
       <div
         className="absolute inset-0 -z-10 opacity-15 sm:opacity-20 pointer-events-none select-none"
         aria-hidden="true"
@@ -426,12 +382,10 @@ export default function IntroSection() {
         </h1>
         <p
           ref={textRef}
-          className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl max-w-xs sm:max-w-xl md:max-w-2xl mx-auto mb-5 sm:mb-6 lg:mb-8 text-slate-300/90 leading-relaxed px-2 sm:px-0"
+          className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl max-w-xs sm:max-w-xl md:max-w-2xl mx-auto mb-5 sm:mb-6 lg:mb-8 text-[color:var(--color-secondary)] leading-relaxed px-2 sm:px-0"
         >
-          Développeur web passionné, spécialisé en{" "}
-          <strong className="text-[var(--color-accent)]">Next.js</strong> et{" "}
-          <strong className="text-[var(--color-accent)]">Angular</strong>, je
-          conçois des interfaces modernes, claires et orientées produit.
+          Développeur spécialisé en architecture logicielle, je conçois des
+          systèmes web et mobile robustes, évolutifs et orientés métier.
         </p>
         <div
           ref={heroCtasRef}
@@ -439,20 +393,23 @@ export default function IntroSection() {
         >
           <Link
             href="/#contact"
-            className="inline-flex justify-center bg-[var(--color-accent)] hover:bg-[#22ccee] transition-all duration-300 text-black font-semibold px-6 py-3.5 sm:py-3 rounded-lg shadow-lg hover:shadow-[0_0_20px_#38bdf8] text-base sm:text-lg transform hover:scale-[1.02] sm:hover:scale-105 will-change-transform focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)] focus:ring-opacity-50 min-h-[48px] sm:min-h-0 items-center"
+            onClick={scrollToHomeSection("contact")}
+            className="inline-flex justify-center items-center bg-[var(--color-accent)] hover:bg-[#22ccee] transition-all duration-300 font-semibold px-4 py-2 text-sm rounded-lg shadow-lg hover:shadow-[0_0_20px_#38bdf8] sm:px-6 sm:py-3 sm:text-base md:text-lg transform hover:scale-[1.02] sm:hover:scale-105 will-change-transform focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)] focus:ring-opacity-50 min-h-[40px] sm:min-h-0"
+            style={{ color: "#0f172a" }}
             aria-label="Me contacter - Accéder au formulaire de contact"
           >
             Me contacter
           </Link>
           <Link
             href="/#projets"
-            className="inline-flex justify-center border-2 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-all duration-300 font-semibold px-6 py-3.5 sm:py-3 rounded-lg text-base sm:text-lg transform hover:scale-[1.02] sm:hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)] focus:ring-opacity-40 min-h-[48px] sm:min-h-0 items-center"
+            onClick={scrollToHomeSection("projets")}
+            className="inline-flex justify-center items-center border-2 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-all duration-300 font-semibold px-4 py-2 text-sm rounded-lg sm:px-6 sm:py-3 sm:text-base md:text-lg transform hover:scale-[1.02] sm:hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)] focus:ring-opacity-40 min-h-[40px] sm:min-h-0"
             aria-label="Voir la section Mes projets"
           >
             Mes projets
           </Link>
         </div>
-        
+
         <div
           className="mt-6 sm:mt-10 h-1 w-16 sm:w-20 lg:w-24 mx-auto bg-[var(--color-accent)] rounded-full animate-pulse"
           aria-hidden="true"
@@ -461,18 +418,12 @@ export default function IntroSection() {
 
       <style jsx>{`
         @keyframes bounce-slow {
-          0%,
-          100% {
-            transform: translateY(0) rotate(var(--rotation, 0deg));
-          }
-          50% {
-            transform: translateY(-4px) rotate(var(--rotation, 0deg));
-          }
+          0%, 100% { transform: translateY(0) rotate(var(--rotation, 0deg)); }
+          50% { transform: translateY(-4px) rotate(var(--rotation, 0deg)); }
         }
         .animate-bounce-slow {
           animation: bounce-slow 1.5s ease-in-out infinite;
         }
-
         @media (prefers-reduced-motion: reduce) {
           .animate-bounce-slow,
           .animate-pulse {
@@ -484,7 +435,6 @@ export default function IntroSection() {
             transition-duration: 0.01ms !important;
           }
         }
-
         @media (max-width: 640px) {
           .hero-text-container h1 {
             line-height: 1.2;
@@ -492,6 +442,8 @@ export default function IntroSection() {
           }
           .hero-text-container p {
             font-size: 0.875rem;
+            color: var(--color-secondary);
+            font-family: var(--font-main);
           }
         }
       `}</style>
