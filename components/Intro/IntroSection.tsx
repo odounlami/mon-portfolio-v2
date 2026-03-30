@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+  type CSSProperties,
+} from "react";
 import gsap from "gsap";
 import SplitText from "gsap/SplitText";
 import Link from "next/link";
@@ -22,9 +29,10 @@ export default function IntroSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   
   const inactivityTimer = useRef<NodeJS.Timeout | null>(null);
+  const heroTextRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLParagraphElement>(null);
   const nameRef = useRef<HTMLSpanElement>(null);
-  const ctaRef = useRef<HTMLAnchorElement>(null);
+  const heroCtasRef = useRef<HTMLDivElement>(null);
   const starsContainerRef = useRef<HTMLDivElement>(null);
   const lastActivityTime = useRef<number>(0);
   const resizeTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -81,24 +89,96 @@ export default function IntroSection() {
     const numStars = isMobile 
       ? Math.floor(Math.random() * 3) + 2 
       : Math.floor(Math.random() * 8) + 5;
-    const margin = isMobile ? 10 : 40;
-    const rect = document.querySelector(".hero-text-container")?.getBoundingClientRect();
+    const margin = isMobile ? 16 : 40;
+    /** Marge autour du bloc texte + marge pour l’animation bounce (~4px) et grosses étoiles */
+    const textPad = isMobile ? 80 : 100;
+    const bouncePad = 8;
+
+    const container = starsContainerRef.current;
+    const cRect = container?.getBoundingClientRect();
+    const textRect = heroTextRef.current?.getBoundingClientRect();
+
+    const textZone =
+      cRect && textRect
+        ? {
+            left: textRect.left - cRect.left - textPad,
+            right: textRect.right - cRect.left + textPad,
+            top: textRect.top - cRect.top - textPad - bouncePad,
+            bottom: textRect.bottom - cRect.top + textPad,
+          }
+        : null;
+
+    const cw = cRect?.width ?? width;
+    const ch = cRect?.height ?? window.innerHeight;
+
+    const overlapsText = (x: number, y: number, size: number) =>
+      !!textZone &&
+      x + size > textZone.left &&
+      x < textZone.right &&
+      y + size > textZone.top &&
+      y < textZone.bottom;
+
+    /** Position garantie hors du bloc titre (bandes autour de la zone) */
+    const randomOutsideText = (
+      size: number
+    ): { x: number; y: number } | null => {
+      if (!textZone) return null;
+
+      const candidates: Array<() => { x: number; y: number }> = [];
+
+      if (textZone.top > margin + size) {
+        candidates.push(() => ({
+          x: margin + Math.random() * Math.max(0, cw - margin * 2 - size),
+          y: margin + Math.random() * Math.max(0, textZone.top - margin - size),
+        }));
+      }
+      if (ch - textZone.bottom > margin + size) {
+        candidates.push(() => ({
+          x: margin + Math.random() * Math.max(0, cw - margin * 2 - size),
+          y:
+            textZone.bottom +
+            Math.random() * Math.max(0, ch - textZone.bottom - margin - size),
+        }));
+      }
+      if (textZone.left > margin + size) {
+        candidates.push(() => ({
+          x: margin + Math.random() * Math.max(0, textZone.left - margin - size),
+          y: margin + Math.random() * Math.max(0, ch - margin * 2 - size),
+        }));
+      }
+      if (cw - textZone.right > margin + size) {
+        candidates.push(() => ({
+          x:
+            textZone.right +
+            Math.random() * Math.max(0, cw - textZone.right - margin - size),
+          y: margin + Math.random() * Math.max(0, ch - margin * 2 - size),
+        }));
+      }
+
+      if (candidates.length === 0) return null;
+      return candidates[Math.floor(Math.random() * candidates.length)]();
+    };
 
     const newStars: Star[] = Array.from({ length: numStars }, (_, i) => {
-      let x = 0, y = 0, attempts = 0;
-      
+      let x = 0,
+        y = 0,
+        size = 0,
+        attempts = 0;
+
       do {
-        x = Math.random() * (window.innerWidth - margin * 2) + margin;
-        y = Math.random() * (window.innerHeight - margin * 2) + margin;
+        size = isMobile ? 10 + Math.random() * 8 : 15 + Math.random() * 15;
+        x = Math.random() * (cw - margin * 2) + margin;
+        y = Math.random() * (ch - margin * 2) + margin;
         attempts++;
-      } while (
-        attempts < 10 && 
-        rect && 
-        x >= rect.left - 50 && 
-        x <= rect.right + 50 && 
-        y >= rect.top - 50 && 
-        y <= rect.bottom + 50
-      );
+      } while (attempts < 40 && overlapsText(x, y, size));
+
+      if (attempts >= 40 && textZone) {
+        const fallback = randomOutsideText(size);
+        if (fallback) {
+          x = fallback.x;
+          y = fallback.y;
+        }
+      }
 
       return {
         x,
@@ -106,7 +186,7 @@ export default function IntroSection() {
         rotation: Math.random() * 360,
         id: Date.now() + i,
         visible: true,
-        size: isMobile ? 10 + Math.random() * 8 : 15 + Math.random() * 15,
+        size,
       };
     });
 
@@ -143,13 +223,15 @@ export default function IntroSection() {
 
   // Animations d'entrée
   useEffect(() => {
-    if (!nameRef.current || !textRef.current || !ctaRef.current) return;
+    if (!nameRef.current || !textRef.current || !heroCtasRef.current) return;
     if (prefersReducedMotion) {
-      gsap.set([nameRef.current, textRef.current, ctaRef.current], { opacity: 1 });
+      gsap.set([nameRef.current, textRef.current, heroCtasRef.current], {
+        opacity: 1,
+      });
       return;
     }
 
-    gsap.set(ctaRef.current, { opacity: 0, scale: 0.9 });
+    gsap.set(heroCtasRef.current, { opacity: 0, scale: 0.9 });
 
     requestAnimationFrame(() => {
       const nameSplit = new SplitText(nameRef.current, { type: "chars" });
@@ -170,7 +252,7 @@ export default function IntroSection() {
           stagger: 0.06,
           ease: "expo.out",
         }, 0.2)
-        .to(ctaRef.current, {
+        .to(heroCtasRef.current, {
           duration: 0.6,
           opacity: 1,
           scale: 1,
@@ -189,15 +271,24 @@ export default function IntroSection() {
   const handleNameClick = useCallback(() => {
     if (!nameRef.current || prefersReducedMotion) return;
 
-    const rect = nameRef.current.getBoundingClientRect();
-    const explosionStars: Star[] = Array.from({ length: 8 }, (_, i) => ({
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-      rotation: Math.random() * 360,
-      id: Date.now() + i,
-      visible: true,
-      size: 12 + Math.random() * 8,
-    }));
+    const nameRect = nameRef.current.getBoundingClientRect();
+    const cRect = starsContainerRef.current?.getBoundingClientRect();
+    if (!cRect) return;
+
+    const cx = nameRect.left + nameRect.width / 2 - cRect.left;
+    const cy = nameRect.top + nameRect.height / 2 - cRect.top;
+
+    const explosionStars: Star[] = Array.from({ length: 8 }, (_, i) => {
+      const size = 12 + Math.random() * 8;
+      return {
+        x: cx - size / 2,
+        y: cy - size / 2,
+        rotation: Math.random() * 360,
+        id: Date.now() + i,
+        visible: true,
+        size,
+      };
+    });
 
     setStars(explosionStars);
 
@@ -239,15 +330,17 @@ export default function IntroSection() {
           className={`absolute transition-all duration-700 ${
             star.visible ? "opacity-100 animate-bounce-slow" : "opacity-0"
           }`}
-          style={{
-            left: star.x,
-            top: star.y,
-            width: star.size,
-            height: star.size,
-            transform: `rotate(${star.rotation}deg)`,
-            fill: "#38BDF8",
-            willChange: "transform, opacity",
-          }}
+          style={
+            {
+              left: star.x,
+              top: star.y,
+              width: star.size,
+              height: star.size,
+              fill: "#38BDF8",
+              willChange: "transform, opacity",
+              ["--rotation" as string]: `${star.rotation}deg`,
+            } as CSSProperties
+          }
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           aria-hidden="true"
@@ -306,7 +399,10 @@ export default function IntroSection() {
       </div>
 
       {/* Texte principal */}
-      <div className="hero-text-container flex flex-col justify-center items-center text-center w-full px-4 sm:px-6 md:px-8 z-20 max-w-full sm:max-w-lg md:max-w-3xl mx-auto">
+      <div
+        ref={heroTextRef}
+        className="hero-text-container flex flex-col justify-center items-center text-center w-full px-4 sm:px-6 md:px-8 z-20 max-w-full sm:max-w-lg md:max-w-3xl mx-auto"
+      >
         <h1
           id="hero-title"
           className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight leading-snug sm:leading-tight mb-3 sm:mb-4"
@@ -337,14 +433,25 @@ export default function IntroSection() {
           <strong className="text-[var(--color-accent)]">Angular</strong>, je
           conçois des interfaces modernes, claires et orientées produit.
         </p>
-        <Link
-          ref={ctaRef}
-          href="/#contact"
-          className="inline-block bg-[var(--color-accent)] hover:bg-[#22ccee] transition-all duration-300 text-black font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-[0_0_20px_#38bdf8] text-base sm:text-lg transform hover:scale-105 will-change-transform focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)] focus:ring-opacity-50"
-          aria-label="Me contacter - Accéder au formulaire de contact"
+        <div
+          ref={heroCtasRef}
+          className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full max-w-md sm:max-w-none"
         >
-          Me contacter
-        </Link>
+          <Link
+            href="/#contact"
+            className="inline-flex justify-center bg-[var(--color-accent)] hover:bg-[#22ccee] transition-all duration-300 text-black font-semibold px-6 py-3.5 sm:py-3 rounded-lg shadow-lg hover:shadow-[0_0_20px_#38bdf8] text-base sm:text-lg transform hover:scale-[1.02] sm:hover:scale-105 will-change-transform focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)] focus:ring-opacity-50 min-h-[48px] sm:min-h-0 items-center"
+            aria-label="Me contacter - Accéder au formulaire de contact"
+          >
+            Me contacter
+          </Link>
+          <Link
+            href="/#projets"
+            className="inline-flex justify-center border-2 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-all duration-300 font-semibold px-6 py-3.5 sm:py-3 rounded-lg text-base sm:text-lg transform hover:scale-[1.02] sm:hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)] focus:ring-opacity-40 min-h-[48px] sm:min-h-0 items-center"
+            aria-label="Voir la section Mes projets"
+          >
+            Mes projets
+          </Link>
+        </div>
         
         <div
           className="mt-6 sm:mt-10 h-1 w-16 sm:w-20 lg:w-24 mx-auto bg-[var(--color-accent)] rounded-full animate-pulse"

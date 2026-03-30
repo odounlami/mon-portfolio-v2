@@ -52,10 +52,11 @@ export default function ProjectDetailPage() {
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold text-white">Projet non trouvé</h1>
           <button
-            onClick={() => router.push("/projets")}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition"
+            type="button"
+            onClick={() => router.push("/#projets")}
+            className="inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition active:scale-[0.98]"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 shrink-0" />
             Retour aux projets
           </button>
         </div>
@@ -63,23 +64,29 @@ export default function ProjectDetailPage() {
     );
   }
 
+  const hasHeroLinks = !!(project.liveUrl || project.githubUrl);
+
+  const actionLinkClass =
+    "inline-flex flex-1 sm:flex-none min-h-[48px] items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-lg font-semibold text-sm sm:text-base transition-colors active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-slate-900";
+
   return (
     <main className="relative min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-      <div className="relative max-w-6xl mx-auto px-4 md:px-8 py-16 md:py-24">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-16 md:py-24">
 
         {/* Back */}
         <button
+          type="button"
           onClick={() => router.back()}
-          className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-8 transition-colors"
+          className="inline-flex items-center gap-2 min-h-[48px] min-w-0 -ml-2 px-3 py-2 mb-6 sm:mb-8 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
         >
-          <ArrowLeft className="w-5 h-5" />
-          Retour aux projets
+          <ArrowLeft className="w-5 h-5 shrink-0" aria-hidden />
+          <span>Retour aux projets</span>
         </button>
 
         {/* HERO */}
         <div
           ref={heroRef}
-          className="relative h-[320px] md:h-[420px] lg:h-[520px] rounded-2xl overflow-hidden shadow-lg group"
+          className="relative h-[min(52vh,380px)] sm:h-[320px] md:h-[420px] lg:h-[520px] rounded-xl sm:rounded-2xl overflow-hidden shadow-lg group"
         >
           <Image
             src={project.image}
@@ -89,50 +96,60 @@ export default function ProjectDetailPage() {
             priority
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
 
-          {/* ACTION BUTTONS */}
-          <div className="absolute bottom-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            {project.liveUrl && (
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
-              >
-                <ExternalLink size={16} />
-                Live
-              </a>
-            )}
-
-            {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg"
-              >
-                <Github size={16} />
-                Code
-              </a>
-            )}
-          </div>
-
-          {/* TEXT */}
-          <div className="absolute bottom-8 left-8">
-            <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-extrabold">
+          {/* TEXT — laisse la place aux boutons sur mobile */}
+          <div
+            className={`absolute left-4 right-4 sm:left-8 sm:right-8 md:max-w-2xl ${
+              hasHeroLinks
+                ? "bottom-[7.5rem] sm:bottom-8 md:bottom-10"
+                : "bottom-6 sm:bottom-8 md:bottom-10"
+            }`}
+          >
+            <h1 className="text-white text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
               {project.title}
             </h1>
             {project.description && (
-              <p className="mt-2 text-lg text-slate-200 max-w-xl">
+              <p className="mt-2 text-sm sm:text-lg text-slate-200 line-clamp-3 sm:line-clamp-none max-w-xl">
                 {project.description}
               </p>
             )}
           </div>
+
+          {/* ACTION BUTTONS — toujours visibles sur mobile, hover sur md+ */}
+          {hasHeroLinks && (
+            <div
+              className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:bottom-6 md:right-6 md:left-auto md:p-0 flex flex-row sm:flex-wrap md:flex-nowrap gap-2 md:gap-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 bg-black/40 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none"
+            >
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${actionLinkClass} bg-purple-600 hover:bg-purple-700 text-white`}
+                >
+                  <ExternalLink size={18} className="shrink-0" aria-hidden />
+                  Live
+                </a>
+              )}
+
+              {project.githubUrl && (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${actionLinkClass} bg-slate-800 hover:bg-slate-700 text-white border border-slate-600/80`}
+                >
+                  <Github size={18} className="shrink-0" aria-hidden />
+                  Code
+                </a>
+              )}
+            </div>
+          )}
         </div>
 
         {/* CONTENT */}
-        <div ref={contentRef} className="mt-16 space-y-12">
+        <div ref={contentRef} className="mt-10 sm:mt-16 space-y-10 sm:space-y-12">
 
           <ProjectSection title="Rôle">
             <p className="text-slate-300 text-lg">{project.role}</p>
@@ -191,16 +208,17 @@ export default function ProjectDetailPage() {
         </div>
 
         {/* CTA */}
-        <div className="mt-16 p-8 bg-gradient-to-r from-purple-600/10 to-blue-600/10 rounded-2xl border border-purple-500/20 text-center">
-          <h3 className="text-2xl font-bold text-white mb-4">
+        <div className="mt-12 sm:mt-16 p-6 sm:p-8 bg-gradient-to-r from-purple-600/10 to-blue-600/10 rounded-2xl border border-purple-500/20 text-center">
+          <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">
             Intéressé par ce projet ?
           </h3>
-          <p className="text-slate-300 mb-6">
+          <p className="text-slate-300 mb-6 text-sm sm:text-base">
             N&apos;hésitez pas à me contacter pour en discuter davantage.
           </p>
           <button
+            type="button"
             onClick={() => router.push("/#contact")}
-            className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition"
+            className="w-full sm:w-auto min-h-[48px] px-8 py-3.5 sm:py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition active:scale-[0.98]"
           >
             Me contacter
           </button>

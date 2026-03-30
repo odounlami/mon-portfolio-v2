@@ -95,7 +95,6 @@ export const PROJECTS: Project[] = [
     githubUrl: "https://github.com/odounlami/architecture-studio",
   },
 
-
   {
     id: 4,
     title: "La Maison",
