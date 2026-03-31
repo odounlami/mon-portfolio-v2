@@ -31,7 +31,7 @@ const parcours = [
   {
     type: "experience" as const,
     titre: "Développeur Front-end",
-    lieu: "OBIDON · Cotonou",
+    lieu: "OBIDON SOLUTIONS· Cotonou",
     periode: "avr. 2025 – présent",
     points: [
       "Intégration pixel-perfect depuis maquettes Figma",
