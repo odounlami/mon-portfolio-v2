@@ -131,8 +131,8 @@ export default function Parcours() {
           >
             Mon{" "}
             <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "linear-gradient(90deg, var(--color-accent), #818cf8)" }}
+              className="bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent"
+             
             >
               Parcours
             </span>

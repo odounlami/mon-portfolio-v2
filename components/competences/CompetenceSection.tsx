@@ -17,12 +17,18 @@ export default function CompetenceSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [isTabVisible, setIsTabVisible] = useState(true);
   const [isSectionVisible, setIsSectionVisible] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set()
-  );
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [initialSkillsCount, setInitialSkillsCount] = useState(7);
 
-  const INITIAL_SKILLS_COUNT = 7;
   const AUTO_PLAY_INTERVAL = 6000;
+
+  // Responsive skills count
+  useEffect(() => {
+    const update = () => setInitialSkillsCount(window.innerWidth < 640 ? 4 : 7);
+    update();
+    window.addEventListener("resize", update, { passive: true });
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   // Préférences utilisateur
   useEffect(() => {
@@ -215,52 +221,106 @@ export default function CompetenceSection() {
       {/* Container */}
       <div className="relative w-full max-w-5xl">
         {/* Flèches */}
-        <button onClick={prevSlide} className="absolute -left-4 md:-left-16 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-110 z-20 focus:outline-none focus:ring-4 focus:ring-blue-500/50" aria-label="Compétences précédentes">
+        <button
+          onClick={prevSlide}
+          className="absolute -left-4 md:-left-16 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-110 z-20 focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+          aria-label="Compétences précédentes"
+        >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
 
-        <button onClick={nextSlide} className="absolute -right-4 md:-right-16 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-110 z-20 focus:outline-none focus:ring-4 focus:ring-blue-500/50" aria-label="Compétences suivantes">
+        <button
+          onClick={nextSlide}
+          className="absolute -right-4 md:-right-16 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-110 z-20 focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+          aria-label="Compétences suivantes"
+        >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
 
         {/* Carousel */}
-        <div className="overflow-hidden" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} role="region" aria-label="Carrousel de compétences" aria-live="polite">
+        <div
+          className="overflow-hidden"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          role="region"
+          aria-label="Carrousel de compétences"
+          aria-live="polite"
+        >
           <div ref={carouselRef} className="flex">
             {skillGroups.map((group, groupIndex) => {
               const isExpanded = expandedCategories.has(group.title);
-              const visibleSkills = isExpanded ? group.skills : group.skills.slice(0, INITIAL_SKILLS_COUNT);
-              const hasMore = group.skills.length > INITIAL_SKILLS_COUNT;
+              const visibleSkills = isExpanded
+                ? group.skills
+                : group.skills.slice(0, initialSkillsCount);
+              const hasMore = group.skills.length > initialSkillsCount;
 
               return (
-                <div key={group.title} className={`w-full flex-shrink-0 px-4 slide-${groupIndex}`} aria-hidden={groupIndex !== currentIndex}>
-                  <h3 className="text-2xl sm:text-3xl font-bold mb-8 text-center text-blue-400">{group.title}</h3>
+                <div
+                  key={group.title}
+                  className={`w-full flex-shrink-0 px-4 slide-${groupIndex}`}
+                  aria-hidden={groupIndex !== currentIndex}
+                >
+                  <h3 className="text-2xl sm:text-3xl font-bold mb-8 text-center text-blue-400">
+                    {group.title}
+                  </h3>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6" role="list" aria-label={`Compétences ${group.title}`}>
+                  <div
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6"
+                    role="list"
+                    aria-label={`Compétences ${group.title}`}
+                  >
                     {visibleSkills.map((skill) => {
                       const colorClass = getColorClasses(skill.color);
                       return (
-                        <div key={skill.name} className="skill-card group relative bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-4 min-h-[140px] flex flex-col items-center justify-center text-center hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300" role="listitem">
-                          <div className={`w-10 h-10 mb-3 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ${colorClass}`} aria-hidden="true">
-                            {skill.iconType === "image" ? <img src={skill.icon as string} alt="" className="w-5 h-5 object-contain" /> : (() => {
+                        <div
+                          key={skill.name}
+                          className="skill-card group relative bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-4 min-h-[140px] flex flex-col items-center justify-center text-center hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300"
+                          role="listitem"
+                        >
+                          <div
+                            className={`w-10 h-10 mb-3 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ${colorClass}`}
+                            aria-hidden="true"
+                          >
+                            {skill.iconType === "image" ? (
+                              <img src={skill.icon as string} alt="" className="w-5 h-5 object-contain" />
+                            ) : (() => {
                               const IconComponent = skill.icon as React.ComponentType<{ className?: string }>;
                               return <IconComponent className="w-5 h-5" />;
                             })()}
                           </div>
-                          <p className="text-sm font-medium text-slate-300 group-hover:text-blue-300 transition-colors">{skill.name}</p>
+                          <p className="text-sm font-medium text-slate-300 group-hover:text-blue-300 transition-colors">
+                            {skill.name}
+                          </p>
                         </div>
                       );
                     })}
 
                     {hasMore && (
-                      <button onClick={() => toggleCategoryExpansion(group.title)} className="skill-card group relative bg-gradient-to-br from-slate-800/30 to-slate-900/30 backdrop-blur-sm border-2 border-dashed border-slate-600/50 rounded-xl p-4 min-h-[140px] flex flex-col items-center justify-center text-center hover:border-blue-500/50 hover:bg-slate-800/50 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/50" aria-expanded={isExpanded} aria-label={isExpanded ? "Afficher moins de compétences" : `Afficher ${group.skills.length - INITIAL_SKILLS_COUNT} compétences supplémentaires`}>
-                        <div className="w-10 h-10 mb-3 bg-blue-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300" aria-hidden="true">
-                          <span className="text-2xl font-light text-blue-400">{isExpanded ? "×" : "+"}</span>
+                      <button
+                        onClick={() => toggleCategoryExpansion(group.title)}
+                        className="skill-card group relative bg-gradient-to-br from-slate-800/30 to-slate-900/30 backdrop-blur-sm border-2 border-dashed border-slate-600/50 rounded-xl p-4 min-h-[140px] flex flex-col items-center justify-center text-center hover:border-blue-500/50 hover:bg-slate-800/50 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+                        aria-expanded={isExpanded}
+                        aria-label={
+                          isExpanded
+                            ? "Afficher moins de compétences"
+                            : `Afficher ${group.skills.length - initialSkillsCount} compétences supplémentaires`
+                        }
+                      >
+                        <div
+                          className="w-10 h-10 mb-3 bg-blue-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                          aria-hidden="true"
+                        >
+                          <span className="text-2xl font-light text-blue-400">
+                            {isExpanded ? "×" : "+"}
+                          </span>
                         </div>
-                        <p className="text-sm font-medium text-blue-300 group-hover:text-blue-200 transition-colors">{isExpanded ? "Moins" : `${group.skills.length - INITIAL_SKILLS_COUNT} de plus`}</p>
+                        <p className="text-sm font-medium text-blue-300 group-hover:text-blue-200 transition-colors">
+                          {isExpanded ? "Moins" : `${group.skills.length - initialSkillsCount} de plus`}
+                        </p>
                       </button>
                     )}
                   </div>
@@ -275,10 +335,22 @@ export default function CompetenceSection() {
       <div className="mt-12 flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
           {skillGroups.map((_, index) => (
-            <button key={index} onClick={() => goToSlide(index)} className={`transition-all duration-300 rounded-full focus:outline-none focus:ring-4 focus:ring-blue-500/50 ${index === currentIndex ? "w-8 h-2 bg-gradient-to-r from-blue-500 to-purple-500" : "w-2 h-2 bg-white/30 hover:bg-white/50"}`} aria-label={`Aller à ${skillGroups[index].title}`} aria-current={index === currentIndex ? "true" : "false"} />
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`transition-all duration-300 rounded-full focus:outline-none focus:ring-4 focus:ring-blue-500/50 ${
+                index === currentIndex
+                  ? "w-8 h-2 bg-gradient-to-r from-blue-500 to-purple-500"
+                  : "w-2 h-2 bg-white/30 hover:bg-white/50"
+              }`}
+              aria-label={`Aller à ${skillGroups[index].title}`}
+              aria-current={index === currentIndex ? "true" : "false"}
+            />
           ))}
         </div>
-        <p className="text-sm text-white/40">{currentIndex + 1} / {skillGroups.length}</p>
+        <p className="text-sm text-white/40">
+          {currentIndex + 1} / {skillGroups.length}
+        </p>
       </div>
 
       <style jsx>{`

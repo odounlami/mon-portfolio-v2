@@ -23,10 +23,18 @@ interface Star {
   size: number;
 }
 
+const ROLES = [
+  "Développeur Front-End",
+  "Architecte logiciel",
+  "Designer UX/UI",
+];
+
 export default function IntroSection() {
-  const [patternSize, setPatternSize] = useState(60);
+  const [patternSize, setPatternSize] = useState(20);
   const [stars, setStars] = useState<Star[]>([]);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [roleIndex, setRoleIndex] = useState(0);
+  const [roleVisible, setRoleVisible] = useState(true);
 
   const inactivityTimer = useRef<NodeJS.Timeout | null>(null);
   const heroTextRef = useRef<HTMLDivElement>(null);
@@ -34,70 +42,81 @@ export default function IntroSection() {
   const nameRef = useRef<HTMLSpanElement>(null);
   const heroCtasRef = useRef<HTMLDivElement>(null);
   const starsContainerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const btn1Ref = useRef<HTMLAnchorElement>(null);
+  const btn2Ref = useRef<HTMLAnchorElement>(null);
   const lastActivityTime = useRef<number>(0);
   const resizeTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const starsRef = useRef<Star[]>([]);
+  const mousePosRef = useRef({ x: -999, y: -999 });
 
+  // ─── Reduced motion ───────────────────────────────────────────────────────
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mediaQuery.matches);
-    const handleChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
+  // ─── Role crossfade ───────────────────────────────────────────────────────
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    const interval = setInterval(() => {
+      setRoleVisible(false);
+      const t = setTimeout(() => {
+        setRoleIndex((i) => (i + 1) % ROLES.length);
+        setRoleVisible(true);
+      }, 600);
+      return () => clearTimeout(t);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [prefersReducedMotion]);
+
+  // ─── Scroll smooth ────────────────────────────────────────────────────────
   const scrollToHomeSection = useCallback(
     (sectionId: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
-      const el = document.getElementById(sectionId);
-      if (el) {
-        el.scrollIntoView({
-          behavior: prefersReducedMotion ? "auto" : "smooth",
-          block: "start",
-        });
-      }
+      document.getElementById(sectionId)?.scrollIntoView({
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+        block: "start",
+      });
       window.history.replaceState(null, "", "/");
     },
-    [prefersReducedMotion]
+    [prefersReducedMotion],
   );
 
+  // ─── Pattern grid ─────────────────────────────────────────────────────────
   const updatePatternSize = useCallback(() => {
-    const width = window.innerWidth;
-    setPatternSize(
-      width < 640 ? 20 :
-      width < 768 ? 30 :
-      width < 1024 ? 45 :
-      60
-    );
+    const w = window.innerWidth;
+    setPatternSize(w < 640 ? 20 : w < 768 ? 30 : w < 1024 ? 45 : 60);
   }, []);
 
   useEffect(() => {
     updatePatternSize();
-    const debouncedResize = () => {
+    const onResize = () => {
       if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
       resizeTimeoutRef.current = setTimeout(updatePatternSize, 150);
     };
-    window.addEventListener("resize", debouncedResize, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
     return () => {
-      window.removeEventListener("resize", debouncedResize);
+      window.removeEventListener("resize", onResize);
       if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
     };
   }, [updatePatternSize]);
 
+  // ─── Stars generation ─────────────────────────────────────────────────────
   const launchStars = useCallback(() => {
     if (prefersReducedMotion) return;
-
-    setStars([]);
-    const width = window.innerWidth;
-    const isMobile = width < 768;
+    const w = window.innerWidth;
+    const isMobile = w < 768;
     const numStars = isMobile
       ? Math.floor(Math.random() * 3) + 2
       : Math.floor(Math.random() * 8) + 5;
     const margin = isMobile ? 16 : 40;
-    const textPad = isMobile ? 80 : 100;
-    const bouncePad = 8;
+    const textPad = isMobile ? 60 : 100;
 
-    const container = starsContainerRef.current;
-    const cRect = container?.getBoundingClientRect();
+    const cRect = starsContainerRef.current?.getBoundingClientRect();
     const textRect = heroTextRef.current?.getBoundingClientRect();
 
     const textZone =
@@ -105,12 +124,12 @@ export default function IntroSection() {
         ? {
             left: textRect.left - cRect.left - textPad,
             right: textRect.right - cRect.left + textPad,
-            top: textRect.top - cRect.top - textPad - bouncePad,
+            top: textRect.top - cRect.top - textPad,
             bottom: textRect.bottom - cRect.top + textPad,
           }
         : null;
 
-    const cw = cRect?.width ?? width;
+    const cw = cRect?.width ?? w;
     const ch = cRect?.height ?? window.innerHeight;
 
     const overlapsText = (x: number, y: number, size: number) =>
@@ -120,59 +139,29 @@ export default function IntroSection() {
       y + size > textZone.top &&
       y < textZone.bottom;
 
-    const randomOutsideText = (size: number): { x: number; y: number } | null => {
-      if (!textZone) return null;
-      const candidates: Array<() => { x: number; y: number }> = [];
-      if (textZone.top > margin + size)
-        candidates.push(() => ({
-          x: margin + Math.random() * Math.max(0, cw - margin * 2 - size),
-          y: margin + Math.random() * Math.max(0, textZone.top - margin - size),
-        }));
-      if (ch - textZone.bottom > margin + size)
-        candidates.push(() => ({
-          x: margin + Math.random() * Math.max(0, cw - margin * 2 - size),
-          y: textZone.bottom + Math.random() * Math.max(0, ch - textZone.bottom - margin - size),
-        }));
-      if (textZone.left > margin + size)
-        candidates.push(() => ({
-          x: margin + Math.random() * Math.max(0, textZone.left - margin - size),
-          y: margin + Math.random() * Math.max(0, ch - margin * 2 - size),
-        }));
-      if (cw - textZone.right > margin + size)
-        candidates.push(() => ({
-          x: textZone.right + Math.random() * Math.max(0, cw - textZone.right - margin - size),
-          y: margin + Math.random() * Math.max(0, ch - margin * 2 - size),
-        }));
-      if (candidates.length === 0) return null;
-      return candidates[Math.floor(Math.random() * candidates.length)]();
-    };
-
     const newStars: Star[] = Array.from({ length: numStars }, (_, i) => {
       let x = 0, y = 0, size = 0, attempts = 0;
       do {
-        size = isMobile ? 10 + Math.random() * 8 : 15 + Math.random() * 15;
+        size = isMobile ? 8 + Math.random() * 6 : 10 + Math.random() * 10;
         x = Math.random() * (cw - margin * 2) + margin;
         y = Math.random() * (ch - margin * 2) + margin;
         attempts++;
       } while (attempts < 40 && overlapsText(x, y, size));
-
-      if (attempts >= 40 && textZone) {
-        const fallback = randomOutsideText(size);
-        if (fallback) { x = fallback.x; y = fallback.y; }
-      }
-
       return { x, y, rotation: Math.random() * 360, id: Date.now() + i, visible: true, size };
     });
 
     setStars(newStars);
+    starsRef.current = newStars;
   }, [prefersReducedMotion]);
 
+  // ─── Activity / inactivity ────────────────────────────────────────────────
   const handleActivity = useCallback(() => {
     if (prefersReducedMotion) return;
     const now = Date.now();
     if (now - lastActivityTime.current < 100) return;
     lastActivityTime.current = now;
     setStars([]);
+    starsRef.current = [];
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     inactivityTimer.current = setTimeout(launchStars, 3000);
   }, [launchStars, prefersReducedMotion]);
@@ -185,56 +174,167 @@ export default function IntroSection() {
       window.removeEventListener("mousemove", handleActivity);
       window.removeEventListener("touchstart", handleActivity);
       window.removeEventListener("scroll", handleActivity);
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     };
   }, [handleActivity]);
 
+  // ─── Canvas — lignes entre nœuds ─────────────────────────────────────────
   useEffect(() => {
-    if (!nameRef.current || !textRef.current || !heroCtasRef.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas || prefersReducedMotion) return;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize, { passive: true });
+
+    let t = 0;
+    let rafId = 0;
+
+    const draw = () => {
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const nodes = starsRef.current;
+      if (nodes.length >= 2) {
+        const MAX_DIST = 180;
+        const mouse = mousePosRef.current;
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const a = nodes[i];
+            const b = nodes[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < MAX_DIST) {
+              const mdx = mouse.x - (a.x + b.x) / 2;
+              const mdy = mouse.y - (a.y + b.y) / 2;
+              const mouseDist = Math.sqrt(mdx * mdx + mdy * mdy);
+              const mouseBoost = Math.max(0, 1 - mouseDist / 250);
+              const baseAlpha = (1 - dist / MAX_DIST) * 0.18;
+              const alpha = Math.min(baseAlpha + mouseBoost * 0.35, 0.6);
+              const pulse = 0.85 + 0.15 * Math.sin(t * 0.02 + i * 0.5);
+              ctx.beginPath();
+              ctx.moveTo(a.x + a.size / 2, a.y + a.size / 2);
+              ctx.lineTo(b.x + b.size / 2, b.y + b.size / 2);
+              ctx.strokeStyle = `rgba(56,189,248,${alpha * pulse})`;
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
+            }
+          }
+        }
+      }
+      t++;
+      rafId = requestAnimationFrame(draw);
+    };
+
+    rafId = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", resize);
+    };
+  }, [prefersReducedMotion]);
+
+  // ─── Mouse tracking ───────────────────────────────────────────────────────
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      mousePosRef.current = { x: e.clientX, y: e.clientY };
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+
+  // ─── Magnetic buttons ─────────────────────────────────────────────────────
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    const buttons = [btn1Ref.current, btn2Ref.current].filter(
+      (b): b is HTMLAnchorElement => b !== null,
+    );
+
+    const handlers: Array<{
+      el: HTMLAnchorElement;
+      move: (e: MouseEvent) => void;
+      leave: () => void;
+    }> = [];
+
+    buttons.forEach((btn) => {
+      const onMove = (e: MouseEvent) => {
+        const rect = btn.getBoundingClientRect();
+        const dx = (e.clientX - (rect.left + rect.width / 2)) * 0.28;
+        const dy = (e.clientY - (rect.top + rect.height / 2)) * 0.28;
+        gsap.to(btn, { x: dx, y: dy, duration: 0.3, ease: "power2.out" });
+      };
+      const onLeave = () => {
+        gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1,0.4)" });
+      };
+      btn.addEventListener("mousemove", onMove);
+      btn.addEventListener("mouseleave", onLeave);
+      handlers.push({ el: btn, move: onMove, leave: onLeave });
+    });
+
+    return () => {
+      handlers.forEach(({ el, move, leave }) => {
+        el.removeEventListener("mousemove", move);
+        el.removeEventListener("mouseleave", leave);
+        gsap.set(el, { x: 0, y: 0 });
+      });
+    };
+  }, [prefersReducedMotion]);
+
+  // ─── GSAP entrance ────────────────────────────────────────────────────────
+  useEffect(() => {
+    const name = nameRef.current;
+    const text = textRef.current;
+    const ctas = heroCtasRef.current;
+    if (!name || !text || !ctas) return;
+
     if (prefersReducedMotion) {
-      gsap.set([nameRef.current, textRef.current, heroCtasRef.current], { opacity: 1 });
+      gsap.set([name, text, ctas], { opacity: 1, y: 0 });
       return;
     }
 
-    gsap.set(heroCtasRef.current, { opacity: 0, scale: 0.9 });
+    gsap.set([text, ctas], { opacity: 0, y: 24 });
+    gsap.set(name, { opacity: 0 });
 
-    requestAnimationFrame(() => {
-      const nameSplit = new SplitText(nameRef.current, { type: "chars" });
-      const textSplit = new SplitText(textRef.current, { type: "lines" });
-
-      const tl = gsap.timeline();
-      tl.from(nameSplit.chars, {
-        duration: 0.5,
-        opacity: 0,
-        y: 12,
-        stagger: 0.025,
-        ease: "power3.out",
-      })
-        .from(textSplit.lines, {
-          duration: 0.8,
-          yPercent: 100,
+    let nameSplit: SplitText | null = null;
+    const raf = requestAnimationFrame(() => {
+      nameSplit = new SplitText(name, { type: "chars" });
+      const tl = gsap.timeline({ delay: 0.3 });
+      tl.to(name, { opacity: 1, duration: 0 })
+        .from(nameSplit.chars, {
+          duration: 0.5,
           opacity: 0,
-          stagger: 0.06,
-          ease: "expo.out",
-        }, 0.2)
-        .to(heroCtasRef.current, {
-          duration: 0.6,
-          opacity: 1,
-          scale: 1,
-          ease: "back.out(1.4)",
-        }, 0.4)
-        .to(nameRef.current, {
-          textShadow: "0px 0px 12px #38BDF8",
-          duration: 2,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-        }, 0.6);
+          y: 20,
+          stagger: 0.03,
+          ease: "power3.out",
+        })
+        .to(text, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, "-=0.1")
+        .to(ctas, { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.4)" }, "-=0.3")
+        .to(
+          name,
+          {
+            textShadow: "0px 0px 12px rgba(56,189,248,0.5)",
+            duration: 2.5,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+          },
+          "-=0.2",
+        );
     });
+
+    return () => {
+      cancelAnimationFrame(raf);
+      nameSplit?.revert();
+      gsap.killTweensOf([name, text, ctas]);
+    };
   }, [prefersReducedMotion]);
 
+  // ─── Name click explosion ─────────────────────────────────────────────────
   const handleNameClick = useCallback(() => {
     if (!nameRef.current || prefersReducedMotion) return;
-
     const nameRect = nameRef.current.getBoundingClientRect();
     const cRect = starsContainerRef.current?.getBoundingClientRect();
     if (!cRect) return;
@@ -242,42 +342,48 @@ export default function IntroSection() {
     const cx = nameRect.left + nameRect.width / 2 - cRect.left;
     const cy = nameRect.top + nameRect.height / 2 - cRect.top;
 
-    const explosionStars: Star[] = Array.from({ length: 8 }, (_, i) => {
-      const size = 12 + Math.random() * 8;
+    const explosionStars: Star[] = Array.from({ length: 10 }, (_, i) => {
+      const size = 10 + Math.random() * 8;
       return { x: cx - size / 2, y: cy - size / 2, rotation: Math.random() * 360, id: Date.now() + i, visible: true, size };
     });
 
     setStars(explosionStars);
+    starsRef.current = explosionStars;
 
-    requestAnimationFrame(() => {
-      setTimeout(() => {
+    const raf = requestAnimationFrame(() => {
+      const t = setTimeout(() => {
         const starEls = starsContainerRef.current?.querySelectorAll("svg");
         if (starEls) {
           gsap.to(starEls, {
-            x: () => (Math.random() - 0.5) * 200,
-            y: () => (Math.random() - 0.5) * 200,
+            x: () => (Math.random() - 0.5) * 240,
+            y: () => (Math.random() - 0.5) * 240,
             opacity: 0,
             duration: 1,
             ease: "power2.out",
           });
         }
       }, 30);
+      return () => clearTimeout(t);
     });
+
+    return () => cancelAnimationFrame(raf);
   }, [prefersReducedMotion]);
 
   useEffect(() => {
-    const nameElement = nameRef.current;
-    if (!nameElement) return;
-    nameElement.addEventListener("click", handleNameClick);
-    return () => nameElement.removeEventListener("click", handleNameClick);
+    const el = nameRef.current;
+    if (!el) return;
+    el.addEventListener("click", handleNameClick);
+    return () => el.removeEventListener("click", handleNameClick);
   }, [handleNameClick]);
 
+  // ─── Initial stars ────────────────────────────────────────────────────────
   useEffect(() => {
     if (prefersReducedMotion) return;
-    const timer = setTimeout(launchStars, 3500);
-    return () => clearTimeout(timer);
+    const t = setTimeout(launchStars, 3500);
+    return () => clearTimeout(t);
   }, [launchStars, prefersReducedMotion]);
 
+  // ─── Stars elements ───────────────────────────────────────────────────────
   const starsElements = useMemo(
     () =>
       stars.map((star) => (
@@ -305,26 +411,24 @@ export default function IntroSection() {
           <path d="M12 2l3 6h6l-4 4 1 6-5-3-5 3 1-6-4-4h6z" />
         </svg>
       )),
-    [stars]
+    [stars],
   );
 
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <section
-      className="w-full h-screen flex flex-col justify-center items-center bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#334155] text-[var(--color-secondary)] relative overflow-hidden"
+      className="relative w-full min-h-screen flex flex-col justify-center items-center overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#334155]"
       aria-labelledby="hero-title"
     >
-      {/* Background graphique */}
+      {/* Grille de fond */}
       <div
-        className="absolute inset-0 -z-10 opacity-15 sm:opacity-20 pointer-events-none select-none"
+        className="absolute inset-0 -z-10 opacity-[0.10] pointer-events-none select-none"
         aria-hidden="true"
       >
         <svg
           className="w-full h-full"
           preserveAspectRatio="xMidYMid meet"
           xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="0.5"
           role="presentation"
         >
           <defs>
@@ -337,7 +441,8 @@ export default function IntroSection() {
               <path
                 d={`M${patternSize} 0L0 0 0 ${patternSize}`}
                 stroke="#38BDF8"
-                strokeWidth="0.3"
+                strokeWidth="0.4"
+                fill="none"
               />
             </pattern>
           </defs>
@@ -345,7 +450,24 @@ export default function IntroSection() {
         </svg>
       </div>
 
-      {/* Étoiles décoratives */}
+      {/* Halo radial */}
+      <div
+        className="absolute inset-0 -z-10 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(56,189,248,0.06) 0%, transparent 70%)",
+        }}
+      />
+
+      {/* Canvas graphe de connexions */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none z-10"
+        aria-hidden="true"
+      />
+
+      {/* Étoiles / nœuds */}
       <div
         ref={starsContainerRef}
         className="absolute inset-0 z-10 pointer-events-none"
@@ -354,19 +476,23 @@ export default function IntroSection() {
         {starsElements}
       </div>
 
-      {/* Texte principal */}
+      {/* ── Contenu centré ── */}
       <div
         ref={heroTextRef}
-        className="hero-text-container flex flex-col justify-center items-center text-center w-full px-4 sm:px-6 md:px-8 z-20 max-w-full sm:max-w-lg md:max-w-3xl mx-auto"
+        className="relative z-20 flex flex-col items-center text-center w-full px-4 sm:px-8 md:px-16"
+        style={{ paddingTop: "max(5rem, env(safe-area-inset-top, 0px) + 5rem)" }}
       >
+        {/* Titre */}
         <h1
           id="hero-title"
-          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight leading-snug sm:leading-tight mb-3 sm:mb-4"
+          className="w-full font-black tracking-tight leading-none mb-4 sm:mb-6"
         >
-          Je suis{" "}
+          <span className="block text-slate-400 text-xs sm:text-sm font-light tracking-[0.3em] uppercase mb-3 sm:mb-4">
+            Je suis
+          </span>
           <span
             ref={nameRef}
-            className="text-[var(--color-accent)] font-extrabold block sm:inline whitespace-nowrap cursor-pointer select-none"
+            className="block text-sky-400 cursor-pointer select-none w-full leading-[1.05] tracking-tight text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl"
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
@@ -380,70 +506,90 @@ export default function IntroSection() {
             ODOUNLAMI OSCAR
           </span>
         </h1>
+
+        {/* Role morphing */}
+        <div className="h-7 sm:h-8 mb-6 sm:mb-8 overflow-hidden">
+          <p
+            className="text-sky-300 text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase transition-all duration-500"
+            style={{
+              opacity: roleVisible ? 1 : 0,
+              transform: roleVisible ? "translateY(0)" : "translateY(8px)",
+            }}
+          >
+            {ROLES[roleIndex]}
+          </p>
+        </div>
+
+        {/* Séparateur décoratif — largeur calée sur la description */}
+        <div className="flex items-center gap-3 mb-6 sm:mb-8 w-full max-w-xs sm:max-w-md md:max-w-xl">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-sky-400/40" />
+          <div className="w-1 h-1 rounded-full bg-sky-400/60" />
+          <div className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+          <div className="w-1 h-1 rounded-full bg-sky-400/60" />
+          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-sky-400/40" />
+        </div>
+
+        {/* Description */}
         <p
           ref={textRef}
-          className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl max-w-xs sm:max-w-xl md:max-w-2xl mx-auto mb-5 sm:mb-6 lg:mb-8 text-[color:var(--color-secondary)] leading-relaxed px-2 sm:px-0"
+          className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed tracking-wide mb-8 sm:mb-10 mx-auto max-w-xs sm:max-w-md md:max-w-xl"
         >
-          Développeur spécialisé en architecture logicielle, je conçois des
-          systèmes web et mobile robustes, évolutifs et orientés métier.
+          Développeur spécialisé en{" "}
+          <span className="text-slate-200 font-medium">architecture logicielle</span>
+          , je conçois des systèmes web et mobile{" "}
+          <span className="text-slate-200 font-medium">robustes, évolutifs</span>{" "}
+          et orientés métier.
         </p>
+
+        {/* CTAs */}
         <div
           ref={heroCtasRef}
-          className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full max-w-md sm:max-w-none"
+          className="flex flex-row items-center justify-center gap-3 sm:gap-4 w-full"
         >
           <Link
+            ref={btn1Ref}
             href="/#contact"
             onClick={scrollToHomeSection("contact")}
-            className="inline-flex justify-center items-center bg-[var(--color-accent)] hover:bg-[#22ccee] transition-all duration-300 font-semibold px-4 py-2 text-sm rounded-lg shadow-lg hover:shadow-[0_0_20px_#38bdf8] sm:px-6 sm:py-3 sm:text-base md:text-lg transform hover:scale-[1.02] sm:hover:scale-105 will-change-transform focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)] focus:ring-opacity-50 min-h-[40px] sm:min-h-0"
-            style={{ color: "#0f172a" }}
-            aria-label="Me contacter - Accéder au formulaire de contact"
+            className="inline-flex justify-center items-center font-semibold tracking-wide rounded-xl transition-colors duration-300 active:scale-95 focus:outline-none focus:ring-4 focus:ring-sky-400/40 bg-sky-400 hover:bg-sky-300 hover:shadow-[0_0_28px_rgba(56,189,248,0.4)] text-slate-900 text-sm sm:text-base px-6 sm:px-8 py-3"
+            aria-label="Me contacter"
           >
             Me contacter
           </Link>
           <Link
+            ref={btn2Ref}
             href="/#projets"
             onClick={scrollToHomeSection("projets")}
-            className="inline-flex justify-center items-center border-2 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-all duration-300 font-semibold px-4 py-2 text-sm rounded-lg sm:px-6 sm:py-3 sm:text-base md:text-lg transform hover:scale-[1.02] sm:hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)] focus:ring-opacity-40 min-h-[40px] sm:min-h-0"
-            aria-label="Voir la section Mes projets"
+            className="inline-flex justify-center items-center font-semibold tracking-wide rounded-xl border-2 border-sky-400 text-sky-400 hover:bg-sky-400/10 transition-colors duration-300 active:scale-95 focus:outline-none focus:ring-4 focus:ring-sky-400/40 text-sm sm:text-base px-6 sm:px-8 py-3"
+            aria-label="Mes projets"
           >
             Mes projets
           </Link>
         </div>
 
+        {/* Scroll indicator */}
         <div
-          className="mt-6 sm:mt-10 h-1 w-16 sm:w-20 lg:w-24 mx-auto bg-[var(--color-accent)] rounded-full animate-pulse"
+          className="mt-12 sm:mt-16 flex flex-col items-center gap-2"
           aria-hidden="true"
-        />
+        >
+          <div className="w-px h-10 sm:h-14 bg-gradient-to-b from-sky-400/50 to-transparent" />
+          <div className="w-1.5 h-1.5 rounded-full bg-sky-400/50" />
+        </div>
       </div>
 
       <style jsx>{`
         @keyframes bounce-slow {
           0%, 100% { transform: translateY(0) rotate(var(--rotation, 0deg)); }
-          50% { transform: translateY(-4px) rotate(var(--rotation, 0deg)); }
+          50%       { transform: translateY(-5px) rotate(var(--rotation, 0deg)); }
         }
         .animate-bounce-slow {
-          animation: bounce-slow 1.5s ease-in-out infinite;
+          animation: bounce-slow 1.8s ease-in-out infinite;
         }
         @media (prefers-reduced-motion: reduce) {
-          .animate-bounce-slow,
-          .animate-pulse {
-            animation: none;
-          }
+          .animate-bounce-slow { animation: none; }
           * {
             animation-duration: 0.01ms !important;
             animation-iteration-count: 1 !important;
             transition-duration: 0.01ms !important;
-          }
-        }
-        @media (max-width: 640px) {
-          .hero-text-container h1 {
-            line-height: 1.2;
-            font-size: 1.75rem;
-          }
-          .hero-text-container p {
-            font-size: 0.875rem;
-            color: var(--color-secondary);
-            font-family: var(--font-main);
           }
         }
       `}</style>
