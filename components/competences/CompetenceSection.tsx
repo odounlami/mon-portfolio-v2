@@ -24,7 +24,7 @@ export default function CompetenceSection() {
 
   // Responsive skills count
   useEffect(() => {
-    const update = () => setInitialSkillsCount(window.innerWidth < 640 ? 4 : 7);
+    const update = () => setInitialSkillsCount(window.innerWidth < 640 ? 5 : 7);
     update();
     window.addEventListener("resize", update, { passive: true });
     return () => window.removeEventListener("resize", update);

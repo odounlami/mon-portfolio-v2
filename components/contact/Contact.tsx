@@ -3,8 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import emailjs from "@emailjs/browser";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// =========================
+// EMAILJS CONFIG
+// =========================
+const EMAILJS_SERVICE_ID = "service_elud4sd";
+const EMAILJS_TEMPLATE_ID = "template_7r1f8ub";
+const EMAILJS_PUBLIC_KEY = "AGFMrNwp8HapisVIu";
 
 // =========================
 // TYPES
@@ -76,7 +84,7 @@ const SOCIAL_LINKS: SocialLink[] = [
   },
   {
     name: "Email",
-    href: "mailto:votre.email@example.com",
+    href: "mailto:oscarmoyede@gmail.com",
     icon: <EmailIcon />,
     color: "hover:text-purple-400",
   },
@@ -100,12 +108,10 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
 
-  // Animation GSAP
   useEffect(() => {
     if (!formRef.current || !socialRef.current) return;
 
     const ctx = gsap.context(() => {
-      // Animation du formulaire
       gsap.fromTo(
         formRef.current,
         { opacity: 0, x: -50 },
@@ -122,7 +128,6 @@ export default function Contact() {
         }
       );
 
-      // Animation des liens sociaux
       gsap.fromTo(
         socialRef.current?.children || [],
         { opacity: 0, y: 30 },
@@ -144,7 +149,6 @@ export default function Contact() {
     return () => ctx.revert();
   }, []);
 
-  // Handlers
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({
       ...prev,
@@ -157,16 +161,23 @@ export default function Contact() {
     setIsSubmitting(true);
     setSubmitStatus("idle");
 
-    // Simulation d'envoi (remplacer par votre API)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // Succès
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+        },
+        EMAILJS_PUBLIC_KEY
+      );
+
       setSubmitStatus("success");
       setFormData({ name: "", email: "", message: "" });
-      
       setTimeout(() => setSubmitStatus("idle"), 3000);
     } catch (error) {
+      console.error("Erreur EmailJS :", error);
       setSubmitStatus("error");
       setTimeout(() => setSubmitStatus("idle"), 3000);
     } finally {
@@ -179,14 +190,12 @@ export default function Contact() {
       ref={sectionRef}
       className="relative min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 py-20 px-4 md:px-8"
     >
-      {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/3 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-6xl mx-auto">
-        {/* Header */}
         <header className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4">
             Travaillons{" "}
@@ -199,15 +208,8 @@ export default function Contact() {
           </p>
         </header>
 
-        {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Formulaire */}
-          <form
-            ref={formRef}
-            onSubmit={handleSubmit}
-            className="space-y-6"
-          >
-            {/* Name Input */}
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
                 Votre nom
@@ -224,7 +226,6 @@ export default function Contact() {
               />
             </div>
 
-            {/* Email Input */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
                 Votre email
@@ -241,7 +242,6 @@ export default function Contact() {
               />
             </div>
 
-            {/* Message Textarea */}
             <div>
               <label htmlFor="message" className="block text-sm font-medium text-slate-300 mb-2">
                 Votre message
@@ -258,7 +258,6 @@ export default function Contact() {
               />
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -282,7 +281,6 @@ export default function Contact() {
               )}
             </button>
 
-            {/* Status Messages */}
             {submitStatus === "success" && (
               <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm flex items-center gap-2">
                 <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -302,20 +300,15 @@ export default function Contact() {
             )}
           </form>
 
-          {/* Informations de contact et réseaux sociaux */}
           <div className="space-y-8">
-            {/* Info Card */}
             <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-8">
-              <h3 className="text-2xl font-bold text-white mb-6">
-                Restons connectés
-              </h3>
+              <h3 className="text-2xl font-bold text-white mb-6">Restons connectés</h3>
               <p className="text-slate-300 leading-relaxed mb-6">
-                Je suis toujours ouvert aux nouvelles opportunités et collaborations. 
-                Que ce soit pour un projet freelance, un poste permanent ou simplement 
+                Je suis toujours ouvert aux nouvelles opportunités et collaborations.
+                Que ce soit pour un projet freelance, un poste permanent ou simplement
                 pour discuter technologie, n&apos;hésitez pas !
               </p>
 
-              {/* Contact Direct */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-slate-300">
                   <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
@@ -323,8 +316,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="text-sm text-slate-400">Email</p>
-                    <a href="mailto:votre.email@example.com" className="text-white hover:text-purple-400 transition-colors">
-                       oscarmoyede@gmail.com
+                    <a href="mailto:oscarmoyede@gmail.com" className="text-white hover:text-purple-400 transition-colors">
+                      oscarmoyede@gmail.com
                     </a>
                   </div>
                 </div>
@@ -344,11 +337,8 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* Social Links */}
             <div>
-              <h3 className="text-xl font-bold text-white mb-6">
-                Retrouvez-moi sur
-              </h3>
+              <h3 className="text-xl font-bold text-white mb-6">Retrouvez-moi sur</h3>
               <div ref={socialRef} className="grid grid-cols-2 gap-4">
                 {SOCIAL_LINKS.map((social) => (
                   <a
