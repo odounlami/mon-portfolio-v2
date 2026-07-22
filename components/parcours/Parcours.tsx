@@ -30,13 +30,25 @@ const parcours = [
   },
   {
     type: "experience" as const,
-    titre: "Développeur Front-end",
-    lieu: "OBIDON SOLUTIONS· Cotonou",
-    periode: "avr. 2025 – présent",
+    titre: "Développeur Front-end freelance",
+    lieu: "Obidon Solutions · Cotonou",
+    periode: "avr. 2025 – déc. 2025",
     points: [
       "Intégration pixel-perfect depuis maquettes Figma",
       "Composants génériques réutilisables (inputs, cards, formulaires)",
       "Modélisation UML fonctionnelle et technique",
+    ],
+    actuel: false,
+  },
+  {
+    type: "experience" as const,
+    titre: "Designer UI-UX freelance",
+    lieu: "Mission confidentielle · Royaume-Uni",
+    periode: "depuis 2026",
+    points: [
+      "Recherche et cadrage produit pour une plateforme innovante",
+      "Propositions de solutions UX à partir de problématiques utilisateurs",
+      "Détails sous confidentialité (NDA)",
     ],
     actuel: true,
   },
@@ -138,7 +150,7 @@ export default function Parcours() {
             </span>
           </h2>
           <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            De l&apos;architecture logicielle au code qui dure — quelqu&apos;un qui pense
+            De l&apos;architecture logicielle au code qui dure, quelqu&apos;un qui pense
             les fondations avant de poser le premier composant.
           </p>
         </div>

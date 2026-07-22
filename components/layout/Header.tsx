@@ -48,7 +48,7 @@ export default function Header() {
                 setIsMenuOpen(false);
               }}
             >
-              NEMESIS
+              Odounlami Oscar
             </Link>
           </h1>
 

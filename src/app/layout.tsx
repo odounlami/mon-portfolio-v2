@@ -25,7 +25,7 @@ export default function RootLayout({
 
         <footer className="bg-gray-800 text-gray-300 p-4 sm:p-6 text-center">
           <div className="text-sm sm:text-base">
-            © {new Date().getFullYear()} MonPortfolio — Tous droits réservés
+            © {new Date().getFullYear()} Odounlami Oscar - Tous droits réservés
           </div>
         </footer>
       </body>

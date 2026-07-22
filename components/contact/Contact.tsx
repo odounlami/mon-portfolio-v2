@@ -66,21 +66,15 @@ const EmailIcon = () => (
 const SOCIAL_LINKS: SocialLink[] = [
   {
     name: "GitHub",
-    href: "https://github.com/votre-username",
+    href: "https://github.com/odounlami",
     icon: <GithubIcon />,
     color: "hover:text-gray-400",
   },
   {
     name: "LinkedIn",
-    href: "https://linkedin.com/in/votre-username",
+    href: "https://www.linkedin.com/in/oscar-odounlami-5a6904348/",
     icon: <LinkedinIcon />,
     color: "hover:text-blue-400",
-  },
-  {
-    name: "Twitter",
-    href: "https://twitter.com/votre-username",
-    icon: <TwitterIcon />,
-    color: "hover:text-sky-400",
   },
   {
     name: "Email",
@@ -339,7 +333,7 @@ export default function Contact() {
 
             <div>
               <h3 className="text-xl font-bold text-white mb-6">Retrouvez-moi sur</h3>
-              <div ref={socialRef} className="grid grid-cols-2 gap-4">
+              <div ref={socialRef} className="grid grid-cols-3 gap-4">
                 {SOCIAL_LINKS.map((social) => (
                   <a
                     key={social.name}
