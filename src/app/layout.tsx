@@ -1,12 +1,49 @@
-import Header from '../../components/layout/Header'
-import './globals.css'
 import type { Metadata } from 'next'
+import './globals.css' // Ou votre fichier CSS global
 
-
+// 1. Vos métadonnées
 export const metadata: Metadata = {
-  title: 'ODOUNLAMI OSCAR',
+  metadataBase: new URL('https://moyedeoscar.netlify.app'),
+  title: {
+    default: 'Odounlami Oscar | Développeur Web Next.js & React',
+    template: '%s | Odounlami Oscar',
+  },
   description:
-    'Portfolio de ODOUNLAMI OSCAR, développeur web spécialisé en Next.js et Angular',
+    'Portfolio de Odounlami Oscar, développeur web freelance basé à Cotonou, spécialisé en Next.js, React et Tailwind CSS. Interfaces modernes, performantes et sur-mesure.',
+  keywords: [
+    'développeur web Cotonou',
+    'développeur Next.js Bénin',
+    'développeur React freelance',
+    'Odounlami Oscar',
+  ],
+  authors: [{ name: 'Odounlami Oscar' }],
+  creator: 'Odounlami Oscar',
+  openGraph: {
+    type: 'website',
+    locale: 'fr_FR',
+    url: 'https://moyedeoscar.netlify.app',
+    title: 'Odounlami Oscar | Développeur Web Next.js & React',
+    description:
+      'Portfolio de Odounlami Oscar, développeur web freelance spécialisé en Next.js et React.',
+    siteName: 'Odounlami Oscar',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Odounlami Oscar | Développeur Web Next.js & React',
+    description: 'Portfolio de Odounlami Oscar, développeur web freelance.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+    },
+  },
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({
@@ -16,19 +53,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className="font-inter">
-        <Header />
-
-        <main className="min-h-screen ">
-          {children}
-        </main>
-
-        <footer className="bg-gray-800 text-gray-300 p-4 sm:p-6 text-center">
-          <div className="text-sm sm:text-base">
-            © {new Date().getFullYear()} Odounlami Oscar - Tous droits réservés
-          </div>
-        </footer>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
