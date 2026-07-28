@@ -1,9 +1,15 @@
 import type { Metadata } from 'next'
-import './globals.css' // Ou votre fichier CSS global
+import './globals.css'
 
-// 1. Vos métadonnées
+// métadonnées
 export const metadata: Metadata = {
   metadataBase: new URL('https://moyedeoscar.netlify.app'),
+
+  // Ajout de la vérification Google Search Console
+  verification: {
+    google: 'g-iDloq6tq420u_K_ZJYItVJs1zMHcW1gbuMYeY9ouU',
+  },
+
   title: {
     default: 'Odounlami Oscar | Développeur Web Next.js & React',
     template: '%s | Odounlami Oscar',
