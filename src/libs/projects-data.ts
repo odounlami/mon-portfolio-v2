@@ -55,7 +55,7 @@ export const PROJECTS: Project[] = [
       "API Express avec TypeScript, Prisma et PostgreSQL",
     ],
     challenges:
-      "Structurer les données relationnelles entre utilisateurs, cours, modules et progression, protéger les routes et contenus réservés aux apprenants, puis déployer séparément l’application frontend, l’API et la base de données.",
+      "Assurer la cohérence du parcours utilisateur à travers l’authentification et les redirections, sans perdre la destination initialement demandée. Synchroniser les inscriptions, les modules terminés, les favoris et la progression entre les différentes interfaces. Concevoir un lecteur respectant les règles d’accès et d’enchaînement des modules, puis résoudre les problèmes de configuration et de performances apparus lors du déploiement séparé du frontend, de l’API et de la base de données.",
     liveUrl: "https://elearning-kappa-one.vercel.app",
     githubUrl: "https://github.com/odounlami/elearning",
   },
@@ -182,7 +182,7 @@ export const PROJECTS: Project[] = [
   //   description:
   //     "CRM immobilier avec géolocalisation et visites virtuelles 360°.",
   //   fullDescription:
-  //     "Système CRM complet pour agences immobilières incluant la géolocalisation, des visites virtuelles 360° et un système de gestion des leads intelligent.",
+  //     "Système CRM complet pour agences immobilières incluant la géolocalisation, les visites virtuelles 360° et un système de gestion des leads intelligent.",
   //   image:
   //     "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80",
   //   tech: ["Angular", "Laravel", "MySQL", "Mapbox", "Three.js"],
