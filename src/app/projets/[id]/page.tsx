@@ -150,6 +150,13 @@ export default function ProjectDetailPage() {
           )}
         </div>
 
+        {project.loadingNotice && (
+          <aside className="mt-5 flex items-start gap-3 rounded-xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm leading-relaxed text-amber-100" role="note">
+            <span aria-hidden="true" className="text-lg">ⓘ</span>
+            <p>{project.loadingNotice}</p>
+          </aside>
+        )}
+
         {/* CONTENT */}
         <div ref={contentRef} className="mt-10 sm:mt-16 space-y-10 sm:space-y-12">
 
