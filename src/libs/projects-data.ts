@@ -8,6 +8,7 @@ export interface Project {
   role: string;
   description: string;
   fullDescription: string;
+  loadingNotice?: string;
   image: string;
   tech: string[];
   features: string[];
@@ -24,13 +25,14 @@ export interface Project {
 export const PROJECTS: Project[] = [
   {
     id: 6,
-    title: "Level Up — Plateforme e-learning",
+    title: "Level Up",
     role: "Conception et développement full-stack",
     description:
-      "Mini-plateforme e-learning pour découvrir des formations, suivre des modules vidéo et visualiser sa progression.",
+      "Plateforme e-learning permettant de suivre des formations en ligne, de consulter des modules vidéo et de suivre sa progression.",
     fullDescription:
       "Level Up est une mini-plateforme d’apprentissage en ligne qui permet aux apprenants de parcourir un catalogue de formations, de consulter le détail des cours et de suivre leur progression au fil des modules. L’application comprend une authentification par JWT, une bibliothèque personnelle, la gestion des favoris et un lecteur de modules avec sélection de pistes audio et sous-titres. L’API s’appuie sur une base PostgreSQL et Prisma pour organiser les cours, les modules et les inscriptions.",
     image: "/assets/images/level-up.png",
+    loadingNotice: "Le serveur peut mettre environ 1 à 1 min 30 à démarrer lors de la première visite, car l’API est hébergée sur une offre gratuite. Si le chargement prend un peu de temps, patientez quelques instants.",
     tech: [
       "Angular 22",
       "Tailwind CSS v4",
