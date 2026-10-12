@@ -30,7 +30,7 @@ export const PROJECTS: Project[] = [
       "Mini-plateforme e-learning pour découvrir des formations, suivre des modules vidéo et visualiser sa progression.",
     fullDescription:
       "Level Up est une mini-plateforme d’apprentissage en ligne qui permet aux apprenants de parcourir un catalogue de formations, de consulter le détail des cours et de suivre leur progression au fil des modules. L’application comprend une authentification par JWT, une bibliothèque personnelle, la gestion des favoris et un lecteur de modules avec sélection de pistes audio et sous-titres. L’API s’appuie sur une base PostgreSQL et Prisma pour organiser les cours, les modules et les inscriptions.",
-    image: "/assets/images/level-up.png",
+    image: "/assets/images/level-up.svg",
     tech: [
       "Angular 22",
       "Tailwind CSS v4",
