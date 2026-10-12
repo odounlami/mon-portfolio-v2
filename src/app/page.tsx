@@ -6,6 +6,7 @@ import Contact from "../../components/contact/Contact";
 import IntroSection from "../../components/Intro/IntroSection";
 import Parcours from "../../components/parcours/Parcours";
 import MesProjets from "./projets/projets";
+import ProductCard from "../../components/ProductCard/ProductCard";
 
 const SECTION_IDS = ["intro", "parcours", "competences", "projets", "contact"];
 
@@ -30,14 +31,22 @@ export default function HomePage() {
 
   return (
     <div className="scroll-smooth">
+
       <section id="intro">
         <IntroSection />
       </section>
-
       <section id="parcours">
         <Parcours />
       </section>
 
+   
+      {/* <ProductCard
+        name="Produit 1"
+        price={10000}
+        imageUrl="/images/produit1.jpg"
+        inStock={true}
+        isLoading={true}
+      /> */}
       <section id="competences">
         <CompetenceSection />
       </section>
