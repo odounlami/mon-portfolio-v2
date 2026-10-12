@@ -23,6 +23,41 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   {
+    id: 6,
+    title: "Level Up — Plateforme e-learning",
+    role: "Conception et développement full-stack",
+    description:
+      "Mini-plateforme e-learning pour découvrir des formations, suivre des modules vidéo et visualiser sa progression.",
+    fullDescription:
+      "Level Up est une mini-plateforme d’apprentissage en ligne qui permet aux apprenants de parcourir un catalogue de formations, de consulter le détail des cours et de suivre leur progression au fil des modules. L’application comprend une authentification par JWT, une bibliothèque personnelle, la gestion des favoris et un lecteur de modules avec sélection de pistes audio et sous-titres. L’API s’appuie sur une base PostgreSQL et Prisma pour organiser les cours, les modules et les inscriptions.",
+    image: "/assets/images/level-up.png",
+    tech: [
+      "Angular 22",
+      "Tailwind CSS v4",
+      "Node.js",
+      "Express",
+      "TypeScript",
+      "PostgreSQL",
+      "Prisma 7",
+      "JWT",
+      "Docker",
+    ],
+    features: [
+      "Inscription, connexion et déconnexion avec authentification JWT",
+      "Catalogue avec recherche et filtres par langue et niveau",
+      "Fiches de cours avec modules présentés dans l’ordre",
+      "Lecteur de modules vidéo avec choix de piste audio et sous-titres",
+      "Suivi de progression et validation des modules terminés",
+      "Passage automatique au module suivant",
+      "Bibliothèque personnelle avec tri, filtres, pagination et favoris",
+      "API Express avec TypeScript, Prisma et PostgreSQL",
+    ],
+    challenges:
+      "Structurer les données relationnelles entre utilisateurs, cours, modules et progression, protéger les routes et contenus réservés aux apprenants, puis déployer séparément l’application frontend, l’API et la base de données.",
+    liveUrl: "https://elearning-kappa-one.vercel.app",
+    githubUrl: "https://github.com/odounlami/elearning",
+  },
+  {
     id: 1,
     title: "Terminal Web Interactif",
     role: "Développeur Frontend",
