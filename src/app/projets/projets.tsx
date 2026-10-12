@@ -125,6 +125,11 @@ function ProjectCard({ project }: { project: Project }) {
           {project.title}
         </h3>
         <p className="text-slate-300 text-sm leading-relaxed">{project.description}</p>
+        {project.loadingNotice && (
+          <p className="text-amber-200/90 text-xs leading-relaxed" role="note">
+            ⓘ Le serveur peut prendre 1 à 1 min 30 à démarrer au premier accès (hébergement gratuit).
+          </p>
+        )}
         
         {/* Techs + Détails button */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3">
